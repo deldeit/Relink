@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relink Summary</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&display=swap" rel="stylesheet">
 
 <style>
@@ -30,14 +28,14 @@ body{
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.55);
+  background:rgba(0,0,0,0.5);
   z-index:-1;
 }
 
 .wrap{
-  position:relative;
   width:100vw;
   height:100vh;
+  position:relative;
 }
 
 .slide{
@@ -50,32 +48,13 @@ body{
   text-align:center;
   padding:40px;
   opacity:0;
-  transform:scale(0.97) translateY(20px);
-  transition:all 0.9s cubic-bezier(.2,.8,.2,1);
+  transform:translateY(20px) scale(0.96);
+  transition:all 0.7s ease;
 }
 
 .slide.active{
   opacity:1;
-  transform:scale(1) translateY(0);
-}
-
-.zoomIn{animation:zoomIn .9s ease;}
-.slideLeft{animation:slideLeft .9s ease;}
-.fadeSoft{animation:fadeSoft .9s ease;}
-
-@keyframes zoomIn{
-  from{transform:scale(0.85);opacity:0;}
-  to{transform:scale(1);opacity:1;}
-}
-
-@keyframes slideLeft{
-  from{transform:translateX(60px);opacity:0;}
-  to{transform:translateX(0);opacity:1;}
-}
-
-@keyframes fadeSoft{
-  from{opacity:0;filter:blur(8px);}
-  to{opacity:1;filter:blur(0);}
+  transform:translateY(0) scale(1);
 }
 
 h1{
@@ -85,9 +64,8 @@ h1{
 
 .text{
   font-family:Arial;
-  opacity:0.85;
-  margin-top:18px;
-  max-width:70%;
+  margin-top:15px;
+  opacity:0.8;
 }
 
 .list{
@@ -95,39 +73,20 @@ h1{
   display:flex;
   flex-direction:column;
   gap:10px;
-  align-items:center;
 }
 
 .item{
-  padding:10px 14px;
-  background:rgba(255,255,255,0.08);
-  border-radius:14px;
-  min-width:200px;
-}
-
-.joke{
-  font-size:1.6rem;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-.carousel{
-  width:80%;
-  max-width:800px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  background:rgba(255,255,255,0.1);
+  padding:10px 16px;
+  border-radius:12px;
 }
 
 .carousel img{
-  width:100%;
-  max-height:65vh;
+  width:80%;
+  max-height:60vh;
+  border-radius:16px;
   object-fit:cover;
-  border-radius:18px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.4);
-  transition:opacity 0.6s ease;
+  transition:opacity 0.4s;
 }
 
 .nav{
@@ -139,23 +98,24 @@ h1{
   gap:10px;
 }
 
-.btn{
-  padding:10px 22px;
-  border-radius:999px;
+button{
   border:none;
+  padding:10px 20px;
+  border-radius:999px;
   cursor:pointer;
   background:white;
   font-family:'Climate Crisis';
 }
 
-.download{
-  margin-top:25px;
-  padding:12px 26px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
+#progress{
+  position:fixed;
+  top:0;
+  left:0;
+  height:4px;
+  width:0%;
   background:white;
-  font-family:'Climate Crisis';
+  transition:0.3s;
+  z-index:999;
 }
 
 audio{display:none;}
@@ -164,94 +124,74 @@ audio{display:none;}
 
 <body>
 
+<div id="progress"></div>
 <div class="bg"></div>
 <div class="overlay"></div>
+
 <div class="wrap" id="wrap"></div>
 <audio id="audio"></audio>
 
 <div class="nav">
-  <button class="btn" onclick="prev()">Back</button>
-  <button class="btn" onclick="next()">Next</button>
+  <button onclick="prev()">Back</button>
+  <button onclick="next()">Next</button>
 </div>
 
 <script>
-const data = JSON.parse(localStorage.getItem('relinkData') || '{}');
 
-const groupName = data.groupName || "your group";
-const year = new Date().getFullYear() - 1;
+const data = JSON.parse(sessionStorage.getItem('relinkData') || '{}');
+const images = JSON.parse(sessionStorage.getItem('relinkImages') || '[]');
+data.images = images;
 
 let i = 0;
 let photoIndex = 0;
-let songIndex = 0;
+let photoTimer = null;
+let locked = false;
 
-let audioUnlocked = false;
 const audio = document.getElementById('audio');
-audio.volume = 0.8;
+let songIndex = 0;
+let audioUnlocked = false;
 
-function unlockAudio(){
-  if(audioUnlocked) return;
+document.addEventListener('click', ()=>{
   audioUnlocked = true;
+}, { once:true });
 
-  const t = data.songs?.[0]?.preview;
-  if(t){
-    const test = new Audio();
-    test.src = t;
-    test.volume = 0;
-    test.play().catch(()=>{});
-  }
-}
-
-document.addEventListener('click', unlockAudio, { once:true });
-document.addEventListener('touchstart', unlockAudio, { once:true });
-
-const jokes = [
-  "This group should not be trusted with free time.",
-  "Legally, this year might be a mistake.",
-  "Somehow you all survived again.",
-  "No one learned anything.",
-  "Peak chaos achieved.",
-  "We need to talk about your decisions.",
-  "Aliens avoid this group."
-];
-
-const baseSlides = [
-  { title:`Let's rewind ${groupName}'s ${year}` },
-  { title:"Memes", list:data.memes||[] },
-  { title:"Moments", list:data.moments||[] },
-  { title:"Photos", photos:data.images||[] },
-  { title:"Phrases", list:data.phrases||[] },
-  { title:"Inside jokes", list:data.jokes||[] },
-  { title:"Final", text:"And then? Who knows what's gonna happen next year." }
-];
-
-let slides=[];
-baseSlides.forEach((s,i)=>{
-  slides.push(s);
-  if(i>0 && i<baseSlides.length-1) slides.push({joke:true});
-});
-
-function animate(el){
-  const a=["zoomIn","slideLeft","fadeSoft"];
-  el.classList.add(a[Math.floor(Math.random()*a.length)]);
-}
-
-function startMusic(){
-  if(!audioUnlocked) return;
-  if(!data.songs || !data.songs.length) return;
+function playMusic(){
+  if(!audioUnlocked || !data.songs?.length) return;
 
   const track = data.songs[songIndex % data.songs.length];
-  if(!track || !track.preview) return;
+  if(!track?.preview) return;
 
-  audio.pause();
   audio.src = track.preview;
-  audio.load();
-
   audio.play().catch(()=>{});
-
   songIndex++;
 }
 
-let photoTimer = null;
+audio.addEventListener('ended', playMusic);
+
+const baseSlides = [
+  { title:`${data.groupName || "Your group"} Rewind` },
+  data.memes?.length && { title:"Memes", list:data.memes },
+  data.moments?.length && { title:"Moments", list:data.moments },
+  data.images?.length && { title:"Photos", photos:data.images },
+  data.phrases?.length && { title:"Phrases", list:data.phrases },
+  data.jokes?.length && { title:"Inside jokes", list:data.jokes },
+  { title:"The End", text:"See you next year." }
+].filter(Boolean);
+
+const jokes = [
+  "Peak chaos.",
+  "No lessons learned.",
+  "Still alive somehow.",
+  "Questionable decisions."
+];
+
+let slides = [];
+baseSlides.forEach((s, idx)=>{
+  slides.push(s);
+  if(idx > 0 && idx < baseSlides.length - 1){
+    slides.push({ joke:true });
+  }
+});
 
 function startCarousel(){
   stopCarousel();
@@ -261,39 +201,35 @@ function startCarousel(){
   photoTimer = setInterval(()=>{
     photoIndex = (photoIndex + 1) % photos.length;
     const img = document.getElementById('img');
-    if(img){
-      img.style.opacity = 0;
-      setTimeout(()=>{
-        img.src = photos[photoIndex];
-        img.style.opacity = 1;
-      },250);
-    }
-  }, 2200);
+    if(!img) return;
+
+    img.style.opacity = 0;
+    setTimeout(()=>{
+      img.src = photos[photoIndex];
+      img.style.opacity = 1;
+    },200);
+  },2000);
 }
 
 function stopCarousel(){
   if(photoTimer) clearInterval(photoTimer);
-  photoTimer = null;
 }
 
 function render(){
-  const wrap=document.getElementById('wrap');
-  wrap.innerHTML='';
+  const wrap = document.getElementById('wrap');
+  wrap.innerHTML = '';
 
-  const s=slides[i];
-  const el=document.createElement('div');
-  el.className='slide active';
-
-  animate(el);
+  const s = slides[i];
+  const el = document.createElement('div');
+  el.className = 'slide active';
 
   if(s.joke){
-    el.classList.add('joke');
     el.innerText = jokes[Math.floor(Math.random()*jokes.length)];
     stopCarousel();
   }
   else if(s.photos){
     photoIndex = 0;
-    el.innerHTML=`
+    el.innerHTML = `
       <h1>${s.title}</h1>
       <div class="carousel">
         <img id="img" src="${s.photos[0]}">
@@ -302,50 +238,63 @@ function render(){
     startCarousel();
   }
   else{
-    let html=`<h1>${s.title}</h1>`;
-    if(s.text) html+=`<div class="text">${s.text}</div>`;
-    if(s.list) html+=`<div class="list">${s.list.map(x=>`<div class="item">${x}</div>`).join('')}</div>`;
-    if(i===slides.length-1){
-      html+=`<button class="download" onclick="download()">Download</button>`;
+    let html = `<h1>${s.title}</h1>`;
+
+    if(s.text){
+      html += `<div class="text">${s.text}</div>`;
     }
-    el.innerHTML=html;
+
+    if(s.list?.length){
+      html += `<div class="list">
+        ${s.list.map(x=>`<div class="item">${x}</div>`).join('')}
+      </div>`;
+    }
+
+    el.innerHTML = html;
     stopCarousel();
   }
 
   wrap.appendChild(el);
-
-  setTimeout(()=>startMusic(),200);
+  updateProgress();
+  setTimeout(playMusic, 200);
 }
 
 function next(){
-  if(i<slides.length-1){
+  if(locked) return;
+  locked = true;
+
+  if(i < slides.length - 1){
     i++;
     render();
   }
+
+  setTimeout(()=>locked=false, 500);
 }
 
 function prev(){
-  if(i>0){
+  if(locked) return;
+  locked = true;
+
+  if(i > 0){
     i--;
     render();
   }
+
+  setTimeout(()=>locked=false, 500);
 }
 
-function download(){
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='rewind.json';
-  a.click();
+function updateProgress(){
+  const p = ((i+1)/slides.length)*100;
+  document.getElementById('progress').style.width = p + '%';
 }
 
-document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight')next();
-  if(e.key==='ArrowLeft')prev();
+document.addEventListener('keydown', e=>{
+  if(e.key === "ArrowRight") next();
+  if(e.key === "ArrowLeft") prev();
 });
 
 render();
+
 </script>
 
 </body>
