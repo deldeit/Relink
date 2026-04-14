@@ -57,16 +57,9 @@ body{
   transform:translateY(0) scale(1);
 }
 
-h1{
-  font-size:3rem;
-  margin:0;
-}
+h1{font-size:3rem;margin:0;}
 
-.text{
-  font-family:Arial;
-  margin-top:15px;
-  opacity:0.8;
-}
+.text{font-family:Arial;margin-top:15px;opacity:0.85;}
 
 .list{
   margin-top:20px;
@@ -140,23 +133,22 @@ audio{display:none;}
 
 const data = JSON.parse(sessionStorage.getItem('relinkData') || '{}');
 const images = JSON.parse(sessionStorage.getItem('relinkImages') || '[]');
+
 data.images = images;
 
 let i = 0;
 let photoIndex = 0;
-let photoTimer = null;
+let timer = null;
 let locked = false;
 
 const audio = document.getElementById('audio');
 let songIndex = 0;
-let audioUnlocked = false;
+let unlocked = false;
 
-document.addEventListener('click', ()=>{
-  audioUnlocked = true;
-}, { once:true });
+document.addEventListener('click', ()=> unlocked = true, { once:true });
 
 function playMusic(){
-  if(!audioUnlocked || !data.songs?.length) return;
+  if(!unlocked || !data.songs?.length) return;
 
   const track = data.songs[songIndex % data.songs.length];
   if(!track?.preview) return;
@@ -168,37 +160,50 @@ function playMusic(){
 
 audio.addEventListener('ended', playMusic);
 
-const baseSlides = [
+/* 🔥 MOSTRA TUTTO QUELLO CHE ESISTE */
+const sections = [
   { title:`${data.groupName || "Your group"} Rewind` },
+
+  data.images?.length && { title:"Images", photos:data.images },
+
   data.memes?.length && { title:"Memes", list:data.memes },
+
   data.moments?.length && { title:"Moments", list:data.moments },
-  data.images?.length && { title:"Photos", photos:data.images },
+
   data.phrases?.length && { title:"Phrases", list:data.phrases },
+
   data.jokes?.length && { title:"Inside jokes", list:data.jokes },
+
+  data.songs?.length && {
+    title:"Songs",
+    list:data.songs.map(s => s.title || "Unknown song")
+  },
+
   { title:"The End", text:"See you next year." }
 ].filter(Boolean);
 
 const jokes = [
   "Peak chaos.",
-  "No lessons learned.",
+  "No control detected.",
   "Still alive somehow.",
   "Questionable decisions."
 ];
 
 let slides = [];
-baseSlides.forEach((s, idx)=>{
+sections.forEach((s, idx)=>{
   slides.push(s);
-  if(idx > 0 && idx < baseSlides.length - 1){
+  if(idx>0 && idx<sections.length-1){
     slides.push({ joke:true });
   }
 });
 
 function startCarousel(){
   stopCarousel();
+
   const photos = slides[i].photos;
   if(!photos || photos.length <= 1) return;
 
-  photoTimer = setInterval(()=>{
+  timer = setInterval(()=>{
     photoIndex = (photoIndex + 1) % photos.length;
     const img = document.getElementById('img');
     if(!img) return;
@@ -212,7 +217,7 @@ function startCarousel(){
 }
 
 function stopCarousel(){
-  if(photoTimer) clearInterval(photoTimer);
+  if(timer) clearInterval(timer);
 }
 
 function render(){
@@ -227,6 +232,7 @@ function render(){
     el.innerText = jokes[Math.floor(Math.random()*jokes.length)];
     stopCarousel();
   }
+
   else if(s.photos){
     photoIndex = 0;
     el.innerHTML = `
@@ -237,6 +243,7 @@ function render(){
     `;
     startCarousel();
   }
+
   else{
     let html = `<h1>${s.title}</h1>`;
 
@@ -284,13 +291,13 @@ function prev(){
 }
 
 function updateProgress(){
-  const p = ((i+1)/slides.length)*100;
-  document.getElementById('progress').style.width = p + '%';
+  document.getElementById('progress').style.width =
+    ((i+1)/slides.length)*100 + '%';
 }
 
 document.addEventListener('keydown', e=>{
-  if(e.key === "ArrowRight") next();
-  if(e.key === "ArrowLeft") prev();
+  if(e.key==="ArrowRight") next();
+  if(e.key==="ArrowLeft") prev();
 });
 
 render();
