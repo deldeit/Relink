@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Relink Summary</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relink Survey</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,340 +12,242 @@
 <style>
 body{
   margin:0;
-  height:100vh;
-  overflow:hidden;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:url('background.webp') center/cover no-repeat;
   font-family:'Climate Crisis', sans-serif;
   color:white;
-}
-
-.bg{
-  position:fixed;
-  inset:0;
-  background:url('background.webp') center/cover no-repeat;
-  filter:blur(10px) brightness(0.4);
-  transform:scale(1.1);
-  z-index:-2;
-}
-
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.55);
-  z-index:-1;
-}
-
-.wrap{
-  position:relative;
-  width:100vw;
-  height:100vh;
-}
-
-.slide{
-  position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
   text-align:center;
-  padding:40px;
-  opacity:0;
-  transform:scale(0.97) translateY(20px);
-  transition:all 0.9s cubic-bezier(.2,.8,.2,1);
 }
 
-.slide.active{
-  opacity:1;
-  transform:scale(1) translateY(0);
-}
-
-.zoomIn{animation:zoomIn .9s ease;}
-.slideLeft{animation:slideLeft .9s ease;}
-.fadeSoft{animation:fadeSoft .9s ease;}
-
-@keyframes zoomIn{
-  from{transform:scale(0.85);opacity:0;}
-  to{transform:scale(1);opacity:1;}
-}
-
-@keyframes slideLeft{
-  from{transform:translateX(60px);opacity:0;}
-  to{transform:translateX(0);opacity:1;}
-}
-
-@keyframes fadeSoft{
-  from{opacity:0;filter:blur(8px);}
-  to{opacity:1;filter:blur(0);}
-}
-
-h1{
-  font-size:3rem;
-  margin:0;
-}
-
-.text{
-  font-family:Arial;
-  opacity:0.85;
-  margin-top:18px;
-  max-width:70%;
-}
-
-.list{
-  margin-top:20px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  align-items:center;
-}
-
-.item{
-  padding:10px 14px;
-  background:rgba(255,255,255,0.08);
-  border-radius:14px;
-  min-width:200px;
-}
-
-.joke{
-  font-size:1.6rem;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-.carousel{
-  width:80%;
-  max-width:800px;
+.card{
+  width:min(760px,92vw);
+  background:rgba(0,0,0,0.6);
+  backdrop-filter: blur(12px);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:24px;
+  padding:34px;
+  box-shadow:0 25px 80px rgba(0,0,0,0.65);
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
 }
 
-.carousel img{
+.step{display:none;width:100%;}
+.step.active{display:block;}
+
+h2{margin:0 0 18px 0;font-size:1.8rem;}
+
+input, textarea{
   width:100%;
-  max-height:65vh;
-  object-fit:cover;
-  border-radius:18px;
-  box-shadow:0 20px 60px rgba(0,0,0,0.4);
-  transition:opacity 0.6s ease;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  outline:none;
+  margin-top:10px;
+  text-align:center;
+  font-family:Arial;
 }
+
+.list-item{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.add-btn{
+  margin-top:12px;
+  padding:10px 18px;
+  border-radius:999px;
+  border:none;
+  cursor:pointer;
+  background:rgba(255,255,255,0.15);
+  color:white;
+  font-family:'Climate Crisis', sans-serif;
+}
+
+.upload-btn{
+  padding:14px 22px;
+  border-radius:999px;
+  background:white;
+  color:black;
+  display:inline-block;
+  cursor:pointer;
+  margin-top:10px;
+  font-family:'Climate Crisis', sans-serif;
+}
+
+input[type="file"]{display:none;}
+
+.preview-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
+  gap:12px;
+  margin-top:16px;
+}
+
+.preview{
+  aspect-ratio:1/1;
+  border-radius:22px;
+  overflow:hidden;
+}
+
+.preview img{width:100%;height:100%;object-fit:cover;}
 
 .nav{
-  position:absolute;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
   display:flex;
-  gap:10px;
+  justify-content:space-between;
+  width:100%;
+  margin-top:22px;
 }
 
-.btn{
-  padding:10px 22px;
+.pill{
+  padding:14px 34px;
   border-radius:999px;
   border:none;
   cursor:pointer;
   background:white;
-  font-family:'Climate Crisis';
+  color:black;
+  font-family:'Climate Crisis', sans-serif;
 }
 
-.download{
-  margin-top:25px;
-  padding:12px 26px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
-  background:white;
-  font-family:'Climate Crisis';
-}
-
-audio{display:none;}
 </style>
 </head>
 
 <body>
 
-<div class="bg"></div>
-<div class="overlay"></div>
-<div class="wrap" id="wrap"></div>
-<audio id="audio"></audio>
+<div class="card">
 
-<div class="nav">
-  <button class="btn" onclick="prev()">Back</button>
-  <button class="btn" onclick="next()">Next</button>
+  <div class="step active" id="step1">
+    <h2>What is your friend group's name?</h2>
+    <input id="groupName">
+  </div>
+
+  <div class="step" id="step2">
+    <h2>Upload images</h2>
+    <label class="upload-btn" for="fileInput">Upload</label>
+    <input type="file" id="fileInput" multiple accept="image/*">
+    <div class="preview-grid" id="previewGrid"></div>
+  </div>
+
+  <div class="step" id="step3"><h2>Memes</h2><div id="memes"></div><button class="add-btn" onclick="addItem('memes')">Add</button></div>
+  <div class="step" id="step4"><h2>Moments</h2><div id="moments"></div><button class="add-btn" onclick="addItem('moments')">Add</button></div>
+  <div class="step" id="step5"><h2>Phrases</h2><div id="phrases"></div><button class="add-btn" onclick="addItem('phrases')">Add</button></div>
+  <div class="step" id="step6"><h2>Inside jokes</h2><div id="jokes"></div><button class="add-btn" onclick="addItem('jokes')">Add</button></div>
+
+  <div class="step" id="step7">
+    <h2>Songs</h2>
+    <input id="songInput">
+    <div id="suggestions"></div>
+    <div id="songList"></div>
+  </div>
+
+  <div class="nav">
+    <button class="pill" id="backBtn">Back</button>
+    <button class="pill" id="nextBtn">Next</button>
+  </div>
+
+</div>
+
+<div class="progress-wrap" id="progressWrap" style="display:none;position:fixed;inset:0;justify-content:center;align-items:center;background:rgba(0,0,0,0.6);flex-direction:column;">
+  <div>Generating your rewind...</div>
+  <div style="width:300px;height:10px;background:#333;margin-top:20px;border-radius:999px;overflow:hidden;">
+    <div id="progress" style="height:100%;width:0%;background:white;"></div>
+  </div>
 </div>
 
 <script>
-const data = JSON.parse(localStorage.getItem('relinkData') || '{}');
+let current = 1;
+const total = 7;
 
-const groupName = data.groupName || "your group";
-const year = new Date().getFullYear() - 1;
+let images = [];
+let songs = [];
 
-let i = 0;
-let photoIndex = 0;
-let songIndex = 0;
+const steps = document.querySelectorAll('.step');
 
-let audioUnlocked = false;
-const audio = document.getElementById('audio');
-audio.volume = 0.8;
+const fileInput = document.getElementById('fileInput');
+const previewGrid = document.getElementById('previewGrid');
 
-function unlockAudio(){
-  if(audioUnlocked) return;
-  audioUnlocked = true;
+function show(n){
+  current = n;
+  steps.forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+}
 
-  const t = data.songs?.[0]?.preview;
-  if(t){
-    const test = new Audio();
-    test.src = t;
-    test.volume = 0;
-    test.play().catch(()=>{});
+function nextStep(){
+  if(current < total){
+    show(current + 1);
+  } else {
+    startGeneration(); // 🔥 ultimo Next = genera subito
   }
 }
 
-document.addEventListener('click', unlockAudio, { once:true });
-document.addEventListener('touchstart', unlockAudio, { once:true });
+function prevStep(){
+  if(current > 1) show(current - 1);
+}
 
-const jokes = [
-  "This group should not be trusted with free time.",
-  "Legally, this year might be a mistake.",
-  "Somehow you all survived again.",
-  "No one learned anything.",
-  "Peak chaos achieved.",
-  "We need to talk about your decisions.",
-  "Aliens avoid this group."
-];
+function addItem(id){
+  const c = document.getElementById(id);
+  const d = document.createElement('div');
+  d.className = 'list-item';
+  d.innerHTML = '<input type="text">';
+  c.appendChild(d);
+}
 
-const baseSlides = [
-  { title:`Let's rewind ${groupName}'s ${year}` },
-  { title:"Memes", list:data.memes||[] },
-  { title:"Moments", list:data.moments||[] },
-  { title:"Photos", photos:data.images||[] },
-  { title:"Phrases", list:data.phrases||[] },
-  { title:"Inside jokes", list:data.jokes||[] },
-  { title:"Final", text:"And then? Who knows what's gonna happen next year." }
-];
+fileInput.addEventListener('change', (e) => {
+  previewGrid.innerHTML = '';
+  images = [];
 
-let slides=[];
-baseSlides.forEach((s,i)=>{
-  slides.push(s);
-  if(i>0 && i<baseSlides.length-1) slides.push({joke:true});
+  [...e.target.files].forEach(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      images.push(ev.target.result);
+      const d = document.createElement('div');
+      d.className = 'preview';
+      d.innerHTML = `<img src="${ev.target.result}">`;
+      previewGrid.appendChild(d);
+    };
+    r.readAsDataURL(f);
+  });
 });
 
-function animate(el){
-  const a=["zoomIn","slideLeft","fadeSoft"];
-  el.classList.add(a[Math.floor(Math.random()*a.length)]);
-}
+document.getElementById('nextBtn').addEventListener('click', nextStep);
+document.getElementById('backBtn').addEventListener('click', prevStep);
 
-function startMusic(){
-  if(!audioUnlocked) return;
-  if(!data.songs || !data.songs.length) return;
+function startGeneration(){
+  const data = {
+    groupName: document.getElementById('groupName').value,
+    images,
+    songs,
+    memes: [...document.querySelectorAll('#memes input')].map(i => i.value),
+    moments: [...document.querySelectorAll('#moments input')].map(i => i.value),
+    phrases: [...document.querySelectorAll('#phrases input')].map(i => i.value),
+    jokes: [...document.querySelectorAll('#jokes input')].map(i => i.value)
+  };
 
-  const track = data.songs[songIndex % data.songs.length];
-  if(!track || !track.preview) return;
+  localStorage.setItem('relinkData', JSON.stringify(data));
 
-  audio.pause();
-  audio.src = track.preview;
-  audio.load();
+  document.querySelector('.card').style.display = 'none';
+  const wrap = document.getElementById('progressWrap');
+  wrap.style.display = 'flex';
 
-  audio.play().catch(()=>{});
+  let p = 0;
+  const bar = document.getElementById('progress');
 
-  songIndex++;
-}
+  const i = setInterval(() => {
+    p += 2;
+    bar.style.width = p + '%';
 
-let photoTimer = null;
-
-function startCarousel(){
-  stopCarousel();
-  const photos = slides[i].photos;
-  if(!photos || photos.length <= 1) return;
-
-  photoTimer = setInterval(()=>{
-    photoIndex = (photoIndex + 1) % photos.length;
-    const img = document.getElementById('img');
-    if(img){
-      img.style.opacity = 0;
-      setTimeout(()=>{
-        img.src = photos[photoIndex];
-        img.style.opacity = 1;
-      },250);
+    if(p >= 100){
+      clearInterval(i);
+      window.location.href = 'summary.html';
     }
-  }, 2200);
+  }, 40);
 }
 
-function stopCarousel(){
-  if(photoTimer) clearInterval(photoTimer);
-  photoTimer = null;
-}
-
-function render(){
-  const wrap=document.getElementById('wrap');
-  wrap.innerHTML='';
-
-  const s=slides[i];
-  const el=document.createElement('div');
-  el.className='slide active';
-
-  animate(el);
-
-  if(s.joke){
-    el.classList.add('joke');
-    el.innerText = jokes[Math.floor(Math.random()*jokes.length)];
-    stopCarousel();
-  }
-  else if(s.photos){
-    photoIndex = 0;
-    el.innerHTML=`
-      <h1>${s.title}</h1>
-      <div class="carousel">
-        <img id="img" src="${s.photos[0]}">
-      </div>
-    `;
-    startCarousel();
-  }
-  else{
-    let html=`<h1>${s.title}</h1>`;
-    if(s.text) html+=`<div class="text">${s.text}</div>`;
-    if(s.list) html+=`<div class="list">${s.list.map(x=>`<div class="item">${x}</div>`).join('')}</div>`;
-    if(i===slides.length-1){
-      html+=`<button class="download" onclick="download()">Download</button>`;
-    }
-    el.innerHTML=html;
-    stopCarousel();
-  }
-
-  wrap.appendChild(el);
-
-  setTimeout(()=>startMusic(),200);
-}
-
-function next(){
-  if(i<slides.length-1){
-    i++;
-    render();
-  }
-}
-
-function prev(){
-  if(i>0){
-    i--;
-    render();
-  }
-}
-
-function download(){
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='rewind.json';
-  a.click();
-}
-
-document.addEventListener('keydown',e=>{
-  if(e.key==='ArrowRight')next();
-  if(e.key==='ArrowLeft')prev();
-});
-
-render();
+show(1);
 </script>
 
 </body>
