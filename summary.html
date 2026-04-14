@@ -59,6 +59,25 @@ body{
   transform:scale(1) translateY(0);
 }
 
+.zoomIn{animation:zoomIn .9s ease;}
+.slideLeft{animation:slideLeft .9s ease;}
+.fadeSoft{animation:fadeSoft .9s ease;}
+
+@keyframes zoomIn{
+  from{transform:scale(0.85);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+@keyframes slideLeft{
+  from{transform:translateX(60px);opacity:0;}
+  to{transform:translateX(0);opacity:1;}
+}
+
+@keyframes fadeSoft{
+  from{opacity:0;filter:blur(8px);}
+  to{opacity:1;filter:blur(0);}
+}
+
 h1{
   font-size:3rem;
   margin:0;
@@ -86,6 +105,13 @@ h1{
   min-width:200px;
 }
 
+.joke{
+  font-size:1.6rem;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
 .carousel{
   width:80%;
   max-width:800px;
@@ -100,6 +126,8 @@ h1{
   max-height:65vh;
   object-fit:cover;
   border-radius:18px;
+  transition:all 0.6s ease;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
 }
 
 .carousel-controls{
@@ -114,6 +142,7 @@ h1{
   border-radius:999px;
   cursor:pointer;
   font-family:'Climate Crisis';
+  background:white;
 }
 
 .nav{
@@ -165,6 +194,16 @@ const data = JSON.parse(localStorage.getItem('relinkData') || '{}');
 const groupName = data.groupName || "your group";
 const year = new Date().getFullYear() - 1;
 
+const jokes = [
+  "This group should not be trusted with free time.",
+  "Legally, this year might be a mistake.",
+  "Somehow you all survived again.",
+  "No one learned anything.",
+  "Peak chaos achieved.",
+  "We need to talk about your decisions.",
+  "Aliens avoid this group."
+];
+
 const baseSlides = [
   { title:`Let's rewind ${groupName}'s ${year}` },
   { title:"Memes", list:data.memes||[] },
@@ -184,6 +223,11 @@ baseSlides.forEach((s,i)=>{
 let i=0;
 let photoIndex=0;
 
+function animate(el){
+  const a=["zoomIn","slideLeft","fadeSoft"];
+  el.classList.add(a[Math.floor(Math.random()*a.length)]);
+}
+
 function render(){
   const wrap=document.getElementById('wrap');
   wrap.innerHTML='';
@@ -192,8 +236,11 @@ function render(){
   const el=document.createElement('div');
   el.className='slide active';
 
+  animate(el);
+
   if(s.joke){
-    el.innerText="...";
+    el.classList.add('joke');
+    el.innerText=jokes[Math.floor(Math.random()*jokes.length)];
   }
   else if(s.photos){
     el.innerHTML=`
@@ -245,6 +292,11 @@ function download(){
   a.download='rewind.json';
   a.click();
 }
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight')next();
+  if(e.key==='ArrowLeft')prev();
+});
 
 render();
 </script>
