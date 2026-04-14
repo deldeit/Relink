@@ -1,134 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Relink Survey</title>
+  <title>Relink Survey</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&display=swap" rel="stylesheet">
 
-<style>
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:url('background.webp') center/cover no-repeat;
-  font-family:'Climate Crisis', sans-serif;
-  color:white;
-  text-align:center;
-}
+  <style>
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:url('background.webp') center/cover no-repeat;
+      font-family:'Climate Crisis', sans-serif;
+      color:white;
+      text-align:center;
+    }
 
-.card{
-  width:min(760px,92vw);
-  background:rgba(0,0,0,0.6);
-  backdrop-filter: blur(12px);
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:24px;
-  padding:34px;
-  box-shadow:0 25px 80px rgba(0,0,0,0.65);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
+    .card{
+      width:min(760px,92vw);
+      background:rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:24px;
+      padding:34px;
+      box-shadow:0 25px 80px rgba(0,0,0,0.65);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      position:relative;
+    }
 
-h2{margin:0 0 18px 0;font-size:1.8rem;}
+    h2{
+      margin:0 0 18px 0;
+      font-size:1.8rem;
+    }
 
-.step{display:none;width:100%;}
-.step.active{display:block;}
+    .step{display:none;width:100%;}
+    .step.active{display:block;}
 
-input{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:none;
-  outline:none;
-  margin-top:10px;
-  font-family:Arial;
-  text-align:center;
-}
+    input, textarea{
+      width:100%;
+      padding:14px;
+      border-radius:14px;
+      border:none;
+      outline:none;
+      margin-top:10px;
+      font-family:Arial, sans-serif;
+      text-align:center;
+    }
 
-.list-item{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
+    .list-item{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+      width:100%;
+    }
 
-.list-item input{flex:1;}
+    .list-item input{flex:1;}
 
-.add-btn{
-  margin-top:12px;
-  padding:10px 18px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
-  background:rgba(255,255,255,0.15);
-  color:white;
-  font-family:'Climate Crisis';
-}
+    .add-btn{
+      margin-top:12px;
+      padding:10px 18px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      background:rgba(255,255,255,0.15);
+      color:white;
+      font-family:'Climate Crisis', sans-serif;
+    }
 
-.upload-btn{
-  padding:14px 22px;
-  border-radius:999px;
-  background:white;
-  color:black;
-  display:inline-block;
-  cursor:pointer;
-  margin-top:10px;
-}
+    .upload-btn{
+      padding:14px 22px;
+      border-radius:999px;
+      background:white;
+      color:black;
+      display:inline-block;
+      cursor:pointer;
+      margin-top:10px;
+    }
 
-input[type="file"]{display:none;}
+    input[type="file"]{display:none;}
 
-.preview-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
-  gap:12px;
-  margin-top:16px;
-}
+    .preview-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
+      gap:12px;
+      margin-top:16px;
+      width:100%;
+    }
 
-.preview{
-  aspect-ratio:1/1;
-  border-radius:22px;
-  overflow:hidden;
-  background:rgba(255,255,255,0.1);
-}
+    .preview{
+      aspect-ratio:1/1;
+      border-radius:22px;
+      overflow:hidden;
+      background:rgba(255,255,255,0.1);
+    }
 
-.preview img{width:100%;height:100%;object-fit:cover;}
+    .preview img{width:100%;height:100%;object-fit:cover;}
 
-#generateBtn{
-  display:none;
-  margin-top:20px;
-  padding:16px 40px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
-  background:white;
-  color:black;
-  font-family:'Climate Crisis';
-}
+    #generateBtn{
+      display:none;
+      margin-top:20px;
+      padding:16px 40px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      background:white;
+      color:black;
+      font-family:'Climate Crisis', sans-serif;
+    }
 
-.nav{
-  display:flex;
-  justify-content:space-between;
-  width:100%;
-  margin-top:22px;
-}
+    .progress-wrap{
+      position:fixed;
+      inset:0;
+      display:none;
+      justify-content:center;
+      align-items:center;
+      flex-direction:column;
+      background:rgba(0,0,0,0.6);
+    }
 
-.pill{
-  padding:14px 34px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
-  background:white;
-  color:black;
-}
-</style>
+    .progress-bar{
+      width:min(400px,80vw);
+      height:10px;
+      background:rgba(255,255,255,0.2);
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:20px;
+    }
+
+    .progress{
+      height:100%;
+      width:0%;
+      background:white;
+    }
+
+    #songList{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+      justify-content:center;
+    }
+
+    .chip{
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.15);
+      font-family:Arial, sans-serif;
+      font-size:0.9rem;
+    }
+
+    .song-item{
+      padding:10px;
+      border-radius:10px;
+      cursor:pointer;
+      background:rgba(255,255,255,0.08);
+      margin-top:6px;
+    }
+
+    .song-item:hover{background:rgba(255,255,255,0.18);}
+
+    .nav{
+      display:flex;
+      justify-content:space-between;
+      width:100%;
+      margin-top:22px;
+    }
+
+    .pill{
+      padding:14px 34px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      background:white;
+      color:black;
+      font-family:'Climate Crisis', sans-serif;
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="card">
@@ -166,130 +223,101 @@ input[type="file"]{display:none;}
 
 </div>
 
-<div class="progress-wrap" id="progressWrap" style="
-position:fixed;inset:0;display:none;justify-content:center;align-items:center;background:rgba(0,0,0,0.6);flex-direction:column;">
-  <div>Generating your rewind...</div>
-  <div style="width:300px;height:10px;background:#444;border-radius:999px;overflow:hidden;margin-top:20px;">
-    <div id="progress" style="height:100%;width:0;background:white;"></div>
+<div class="progress-wrap" id="progressWrap">
+  <div style="text-align:center">
+    <div>Generating your rewind...</div>
+    <div class="progress-bar"><div class="progress" id="progress"></div></div>
   </div>
 </div>
 
 <script>
-let current = 1;
-const total = 7;
+let current=1;
+const total=7;
+let images=[];
+let songs=[];
 
-let images = [];
-let songs = [];
+function show(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
 
-const fileInput = document.getElementById('fileInput');
-const previewGrid = document.getElementById('previewGrid');
-const songInput = document.getElementById('songInput');
-const songList = document.getElementById('songList');
-const groupName = document.getElementById('groupName');
-const generateBtn = document.getElementById('generateBtn');
-
-function updateUI(){
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  document.getElementById('step' + current).classList.add('active');
-
-  generateBtn.style.display = (current === total) ? 'inline-block' : 'none';
+  document.getElementById('generateBtn').style.display = (current===total) ? 'inline-block' : 'none';
 }
 
 function nextStep(){
-  if(current < total){
-    current++;
-    updateUI();
-  }
+  if(current<total){current++;show(current);}
 }
 
-function prevStep(){
-  if(current > 1){
-    current--;
-    updateUI();
-  }
-}
+function prevStep(){if(current>1){current--;show(current);}}
 
 function addItem(id){
-  const c = document.getElementById(id);
-  const d = document.createElement('div');
-  d.className = 'list-item';
-  d.innerHTML = '<input type="text">';
+  const c=document.getElementById(id);
+  const d=document.createElement('div');
+  d.className='list-item';
+  d.innerHTML='<input type="text">';
   c.appendChild(d);
 }
 
-/* IMAGES FIX */
-fileInput.addEventListener('change', (e) => {
-  images = [];
-  previewGrid.innerHTML = '';
-
-  Array.from(e.target.files).forEach(file => {
-    const reader = new FileReader();
-
-    reader.onload = ev => {
+fileInput.onchange=(e)=>{
+  previewGrid.innerHTML='';
+  images=[];
+  [...e.target.files].forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{
       images.push(ev.target.result);
-
-      const div = document.createElement('div');
-      div.className = 'preview';
-      div.innerHTML = `<img src="${ev.target.result}">`;
-      previewGrid.appendChild(div);
+      const d=document.createElement('div');
+      d.className='preview';
+      d.innerHTML=`<img src="${ev.target.result}">`;
+      previewGrid.appendChild(d);
     };
-
-    reader.readAsDataURL(file);
+    r.readAsDataURL(f);
   });
+};
 
-  updateUI();
-});
+window.handle=function(data){
+  const box=document.getElementById('suggestions');
+  box.innerHTML='';
+  if(!data||!data.data)return;
 
-/* SONG SEARCH */
-window.handle = function(data){
-  const box = document.getElementById('suggestions');
-  box.innerHTML = '';
-
-  if(!data?.data) return;
-
-  data.data.slice(0,5).forEach(t => {
-    const d = document.createElement('div');
-    d.textContent = t.title + ' - ' + t.artist.name;
-    d.className = 'song-item';
-
-    d.onclick = () => {
-      songs.push({title:d.textContent, preview:t.preview});
+  data.data.slice(0,5).forEach(t=>{
+    const d=document.createElement('div');
+    d.className='song-item';
+    d.textContent=t.title+' - '+t.artist.name;
+    d.onclick=()=>{
+      songs.push({title:t.title+' - '+t.artist.name, preview:t.preview});
       renderSongs();
-      songInput.value = '';
-      box.innerHTML = '';
+      songInput.value='';
+      box.innerHTML='';
     };
-
     box.appendChild(d);
   });
 };
 
 function renderSongs(){
-  songList.innerHTML = '';
-  songs.forEach(s => {
-    const c = document.createElement('div');
-    c.className = 'chip';
-    c.textContent = s.title;
+  songList.innerHTML='';
+  songs.forEach(s=>{
+    const c=document.createElement('div');
+    c.className='chip';
+    c.textContent=s.title;
     songList.appendChild(c);
   });
 }
 
 let timeout;
-songInput.addEventListener('input', e => {
+songInput.addEventListener('input',e=>{
   clearTimeout(timeout);
+  const q=e.target.value;
+  if(q.length<2)return;
 
-  if(e.target.value.length < 2) return;
-
-  timeout = setTimeout(() => {
-    const s = document.createElement('script');
-    s.src = `https://api.deezer.com/search?q=${encodeURIComponent(e.target.value)}&output=jsonp&callback=handle`;
+  timeout=setTimeout(()=>{
+    const s=document.createElement('script');
+    s.src=`https://api.deezer.com/search?q=${encodeURIComponent(q)}&output=jsonp&callback=handle`;
     document.body.appendChild(s);
-  }, 300);
+  },300);
 });
 
-/* GENERATE */
 function startGeneration(){
-  const data = {
-    groupName: groupName.value,
+  const data={
+    groupName:groupName.value,
     images,
     songs,
     memes:[...document.querySelectorAll('#memes input')].map(i=>i.value),
@@ -298,26 +326,27 @@ function startGeneration(){
     jokes:[...document.querySelectorAll('#jokes input')].map(i=>i.value)
   };
 
-  localStorage.setItem('relinkData', JSON.stringify(data));
+  localStorage.setItem('relinkData',JSON.stringify(data));
 
-  document.querySelector('.card').style.display = 'none';
-  document.getElementById('progressWrap').style.display = 'flex';
+  document.querySelector('.card').style.display='none';
+  const wrap=document.getElementById('progressWrap');
+  wrap.style.display='flex';
 
-  let p = 0;
-  const bar = document.getElementById('progress');
+  let p=0;
+  const bar=document.getElementById('progress');
 
-  const i = setInterval(() => {
-    p += 2;
-    bar.style.width = p + '%';
+  const i=setInterval(()=>{
+    p+=2;
+    bar.style.width=p+'%';
 
-    if(p >= 100){
+    if(p>=100){
       clearInterval(i);
-      window.location.href = 'summary.html';
+      window.location.href='summary.html';
     }
-  }, 50);
+  },50);
 }
 
-updateUI();
+show(1);
 </script>
 
 </body>
