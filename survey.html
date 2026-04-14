@@ -271,8 +271,12 @@ window.handleDeezer = function(data){
 
     div.onclick = () => {
       songs.push({ title: div.textContent, preview: t.preview });
+
       document.getElementById('songList')
-        .insertAdjacentHTML('beforeend', `<div class="list-item"><input disabled value="${div.textContent}"></div>`);
+        .insertAdjacentHTML('beforeend',
+          `<div class="list-item"><input disabled value="${div.textContent}"></div>`
+        );
+
       box.innerHTML = '';
       document.getElementById('songInput').value = '';
     };
@@ -304,20 +308,34 @@ function showError(msg){
 function startGeneration(){
 
   const data = {
-    groupName: document.getElementById('groupName').value,
-    images: images,
-    songs: songs,
-    memes: [...document.querySelectorAll('#memes input')].map(i=>i.value),
-    moments: [...document.querySelectorAll('#moments input')].map(i=>i.value),
-    phrases: [...document.querySelectorAll('#phrases input')].map(i=>i.value),
-    jokes: [...document.querySelectorAll('#jokes input')].map(i=>i.value)
+    groupName: document.getElementById('groupName').value || "",
+    images: images || [],
+    songs: songs || [],
+    memes: [...document.querySelectorAll('#memes input')].map(i=>i.value).filter(Boolean),
+    moments: [...document.querySelectorAll('#moments input')].map(i=>i.value).filter(Boolean),
+    phrases: [...document.querySelectorAll('#phrases input')].map(i=>i.value).filter(Boolean),
+    jokes: [...document.querySelectorAll('#jokes input')].map(i=>i.value).filter(Boolean)
   };
 
+  let json;
+
   try {
-    sessionStorage.setItem('relinkData', JSON.stringify(data));
+    json = JSON.stringify(data);
   } catch(e) {
-    showError('Error saving data');
+    showError("Data serialization error");
     return;
+  }
+
+  try {
+    sessionStorage.setItem('relinkData', json);
+  } catch(e) {
+    sessionStorage.clear();
+    try {
+      sessionStorage.setItem('relinkData', json);
+    } catch(e2) {
+      showError("Storage full: reduce images");
+      return;
+    }
   }
 
   document.querySelector('.card').style.display = 'none';
