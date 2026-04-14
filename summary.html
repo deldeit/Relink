@@ -127,23 +127,7 @@ h1{
   object-fit:cover;
   border-radius:18px;
   box-shadow:0 20px 60px rgba(0,0,0,0.4);
-  opacity:1;
-  transition:opacity 0.8s ease, transform 0.8s ease;
-}
-
-.carousel-controls{
-  margin-top:15px;
-  display:flex;
-  gap:10px;
-}
-
-.carousel-controls button{
-  padding:10px 18px;
-  border:none;
-  border-radius:999px;
-  cursor:pointer;
-  font-family:'Climate Crisis';
-  background:white;
+  transition:opacity 0.8s ease;
 }
 
 .nav{
@@ -195,6 +179,9 @@ const data = JSON.parse(localStorage.getItem('relinkData') || '{}');
 const groupName = data.groupName || "your group";
 const year = new Date().getFullYear() - 1;
 
+const audio = document.getElementById('audio');
+audio.volume = 0.8;
+
 const jokes = [
   "This group should not be trusted with free time.",
   "Legally, this year might be a mistake.",
@@ -224,16 +211,38 @@ baseSlides.forEach((s,i)=>{
 let i=0;
 let photoIndex=0;
 let photoTimer=null;
+let songIndex=0;
 
 function animate(el){
   const a=["zoomIn","slideLeft","fadeSoft"];
   el.classList.add(a[Math.floor(Math.random()*a.length)]);
 }
 
+function startMusic(){
+  if(!data.songs || !data.songs.length) return;
+
+  const track = data.songs[songIndex % data.songs.length];
+  if(!track || !track.preview) return;
+
+  audio.pause();
+  audio.src = track.preview + "?v=" + Date.now();
+  audio.load();
+
+  const playAudio = () => {
+    audio.play().catch(()=>{});
+  };
+
+  playAudio();
+  document.addEventListener('click', playAudio, { once:true });
+
+  songIndex++;
+}
+
 function startCarousel(){
   stopCarousel();
+
   const photos = slides[i].photos;
-  if(!photos || photos.length<=1) return;
+  if(!photos || photos.length <= 1) return;
 
   photoTimer = setInterval(()=>{
     photoIndex = (photoIndex + 1) % photos.length;
@@ -290,6 +299,8 @@ function render(){
   }
 
   wrap.appendChild(el);
+
+  startMusic();
 }
 
 function next(){
