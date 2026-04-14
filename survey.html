@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Relink Survey</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&display=swap" rel="stylesheet">
+
+  <style>
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:url('background.webp') center/cover no-repeat;
+      font-family:'Climate Crisis', sans-serif;
+      color:white;
+      text-align:center;
+    }
+
+    .card{
+      width:min(760px,92vw);
+      background:rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:24px;
+      padding:34px;
+      box-shadow:0 25px 80px rgba(0,0,0,0.65);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      position:relative;
+    }
+
+    h2{
+      margin:0 0 18px 0;
+      font-size:1.8rem;
+    }
+
+    .step{display:none;width:100%;}
+    .step.active{display:block;}
+
+    input, textarea{
+      width:100%;
+      padding:14px;
+      border-radius:14px;
+      border:none;
+      outline:none;
+      margin-top:10px;
+      font-family:Arial, sans-serif;
+      text-align:center;
+    }
+
+    .list-item{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+      width:100%;
+    }
+
+    .list-item input{flex:1;}
+
+    .add-btn{
+      margin-top:12px;
+      padding:10px 18px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      background:rgba(255,255,255,0.15);
+      color:white;
+      font-family:'Climate Crisis', sans-serif;
+    }
+
+    .upload-btn{
+      padding:14px 22px;
+      border-radius:999px;
+      background:white;
+      color:black;
+      display:inline-block;
+      cursor:pointer;
+      margin-top:10px;
+    }
+
+    input[type="file"]{display:none;}
+
+    .preview-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
+      gap:12px;
+      margin-top:16px;
+      width:100%;
+    }
+
+    .preview{
+      aspect-ratio:1/1;
+      border-radius:22px;
+      overflow:hidden;
+      background:rgba(255,255,255,0.1);
+    }
+
+    .preview img{width:100%;height:100%;object-fit:cover;}
+
+    #generateBtn{
+      display:none;
+      margin-top:20px;
+      padding:16px 40px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      background:white;
+      color:black;
+      font-family:'Climate Crisis', sans-serif;
+    }
+
+    .progress-wrap{
+      position:fixed;
+      inset:0;
+      display:none;
+      justify-content:center;
+      align-items:center;
+      flex-direction:column;
+      background:rgba(0,0,0,0.6);
+    }
+
+    .progress-bar{
+      width:min(400px,80vw);
+      height:10px;
+      background:rgba(255,255,255,0.2);
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:20px;
+    }
+
+    .progress{
+      height:100%;
+      width:0%;
+      background:white;
+    }
+
+    #songList{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+      justify-content:center;
+    }
+
+    .chip{
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.15);
+      font-family:Arial, sans-serif;
+      font-size:0.9rem;
+    }
+
+    .song-item{
+      padding:10px;
+      border-radius:10px;
+      cursor:pointer;
+      background:rgba(255,255,255,0.08);
+      margin-top:6px;
+    }
+
+    .song-item:hover{background:rgba(255,255,255,0.18);}
+
+    .nav{
+      display:flex;
+      justify-content:space-between;
+      width:100%;
+      margin-top:22px;
+    }
+
+    .pill{
+      padding:14px 34px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      background:white;
+      color:black;
+      font-family:'Climate Crisis', sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="step active" id="step1">
+    <h2>What is your friend group's name?</h2>
+    <input id="groupName" type="text">
+  </div>
+
+  <div class="step" id="step2">
+    <h2>Upload images</h2>
+    <label class="upload-btn" for="fileInput">Upload</label>
+    <input type="file" id="fileInput" multiple accept="image/*">
+    <div class="preview-grid" id="previewGrid"></div>
+  </div>
+
+  <div class="step" id="step3"><h2>Memes</h2><div id="memes"></div><button class="add-btn" onclick="addItem('memes')">Add</button></div>
+  <div class="step" id="step4"><h2>Moments</h2><div id="moments"></div><button class="add-btn" onclick="addItem('moments')">Add</button></div>
+  <div class="step" id="step5"><h2>Phrases</h2><div id="phrases"></div><button class="add-btn" onclick="addItem('phrases')">Add</button></div>
+  <div class="step" id="step6"><h2>Inside jokes</h2><div id="jokes"></div><button class="add-btn" onclick="addItem('jokes')">Add</button></div>
+
+  <div class="step" id="step7">
+    <h2>Songs</h2>
+    <input id="songInput" placeholder="Search songs">
+    <div id="suggestions"></div>
+    <div id="songList"></div>
+  </div>
+
+  <button id="generateBtn" onclick="startGeneration()">Generate summary</button>
+
+  <div class="nav">
+    <button class="pill" onclick="prevStep()">Back</button>
+    <button class="pill" onclick="nextStep()">Next</button>
+  </div>
+
+</div>
+
+<div class="progress-wrap" id="progressWrap">
+  <div style="text-align:center">
+    <div>Generating your rewind...</div>
+    <div class="progress-bar"><div class="progress" id="progress"></div></div>
+  </div>
+</div>
+
+<script>
+let current=1;
+const total=7;
+let images=[];
+let songs=[];
+
+function show(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+
+  document.getElementById('generateBtn').style.display = (current===total) ? 'inline-block' : 'none';
+}
+
+function nextStep(){
+  if(current<total){current++;show(current);}
+}
+
+function prevStep(){if(current>1){current--;show(current);}}
+
+function addItem(id){
+  const c=document.getElementById(id);
+  const d=document.createElement('div');
+  d.className='list-item';
+  d.innerHTML='<input type="text">';
+  c.appendChild(d);
+}
+
+fileInput.onchange=(e)=>{
+  previewGrid.innerHTML='';
+  images=[];
+  [...e.target.files].forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      images.push(ev.target.result);
+      const d=document.createElement('div');
+      d.className='preview';
+      d.innerHTML=`<img src="${ev.target.result}">`;
+      previewGrid.appendChild(d);
+    };
+    r.readAsDataURL(f);
+  });
+};
+
+window.handle=function(data){
+  const box=document.getElementById('suggestions');
+  box.innerHTML='';
+  if(!data||!data.data)return;
+
+  data.data.slice(0,5).forEach(t=>{
+    const d=document.createElement('div');
+    d.className='song-item';
+    d.textContent=t.title+' - '+t.artist.name;
+    d.onclick=()=>{
+      songs.push({title:t.title+' - '+t.artist.name, preview:t.preview});
+      renderSongs();
+      songInput.value='';
+      box.innerHTML='';
+    };
+    box.appendChild(d);
+  });
+};
+
+function renderSongs(){
+  songList.innerHTML='';
+  songs.forEach(s=>{
+    const c=document.createElement('div');
+    c.className='chip';
+    c.textContent=s.title;
+    songList.appendChild(c);
+  });
+}
+
+let timeout;
+songInput.addEventListener('input',e=>{
+  clearTimeout(timeout);
+  const q=e.target.value;
+  if(q.length<2)return;
+
+  timeout=setTimeout(()=>{
+    const s=document.createElement('script');
+    s.src=`https://api.deezer.com/search?q=${encodeURIComponent(q)}&output=jsonp&callback=handle`;
+    document.body.appendChild(s);
+  },300);
+});
+
+function startGeneration(){
+  const data={
+    groupName:groupName.value,
+    images,
+    songs,
+    memes:[...document.querySelectorAll('#memes input')].map(i=>i.value),
+    moments:[...document.querySelectorAll('#moments input')].map(i=>i.value),
+    phrases:[...document.querySelectorAll('#phrases input')].map(i=>i.value),
+    jokes:[...document.querySelectorAll('#jokes input')].map(i=>i.value)
+  };
+
+  localStorage.setItem('relinkData',JSON.stringify(data));
+
+  document.querySelector('.card').style.display='none';
+  const wrap=document.getElementById('progressWrap');
+  wrap.style.display='flex';
+
+  let p=0;
+  const bar=document.getElementById('progress');
+
+  const i=setInterval(()=>{
+    p+=2;
+    bar.style.width=p+'%';
+
+    if(p>=100){
+      clearInterval(i);
+      window.location.href='summary.html';
+    }
+  },50);
+}
+
+show(1);
+</script>
+
+</body>
+</html>

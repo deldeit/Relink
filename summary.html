@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Relink Summary</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  overflow:hidden;
+  font-family:'Climate Crisis', sans-serif;
+  color:white;
+}
+
+.bg{
+  position:fixed;
+  inset:0;
+  background:url('background.webp') center/cover no-repeat;
+  filter:blur(10px) brightness(0.4);
+  transform:scale(1.1);
+  z-index:-2;
+}
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.55);
+  z-index:-1;
+}
+
+.wrap{
+  position:relative;
+  width:100vw;
+  height:100vh;
+}
+
+.slide{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:40px;
+  opacity:0;
+  transform:scale(0.97) translateY(20px);
+  transition:all 0.9s cubic-bezier(.2,.8,.2,1);
+}
+
+.slide.active{
+  opacity:1;
+  transform:scale(1) translateY(0);
+}
+
+.zoomIn{animation:zoomIn .9s ease;}
+.slideLeft{animation:slideLeft .9s ease;}
+.fadeSoft{animation:fadeSoft .9s ease;}
+
+@keyframes zoomIn{
+  from{transform:scale(0.85);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+@keyframes slideLeft{
+  from{transform:translateX(60px);opacity:0;}
+  to{transform:translateX(0);opacity:1;}
+}
+
+@keyframes fadeSoft{
+  from{opacity:0;filter:blur(8px);}
+  to{opacity:1;filter:blur(0);}
+}
+
+h1{
+  font-size:3rem;
+  margin:0;
+  text-align:center;
+}
+
+.text{
+  font-family:Arial;
+  opacity:0.85;
+  margin-top:18px;
+  max-width:70%;
+  text-align:center;
+}
+
+.list{
+  margin-top:20px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+  width:100%;
+}
+
+.item{
+  padding:10px 14px;
+  background:rgba(255,255,255,0.08);
+  border-radius:14px;
+  min-width:200px;
+  text-align:center;
+}
+
+.jokeSlide{
+  font-size:1.7rem;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+.nav{
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:10px;
+}
+
+.btn{
+  padding:10px 22px;
+  border-radius:999px;
+  border:none;
+  cursor:pointer;
+  background:white;
+  font-family:'Climate Crisis';
+}
+
+.download{
+  margin-top:25px;
+  padding:12px 26px;
+  border-radius:999px;
+  border:none;
+  cursor:pointer;
+  background:white;
+  font-family:'Climate Crisis';
+}
+
+audio{display:none;}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="overlay"></div>
+<div class="wrap" id="wrap"></div>
+<audio id="audio"></audio>
+
+<div class="nav">
+  <button class="btn" onclick="prev()">Back</button>
+  <button class="btn" onclick="next()">Next</button>
+</div>
+
+<script>
+const data = JSON.parse(localStorage.getItem('relinkData') || '{}');
+const groupName = data.groupName || "your group";
+const year = new Date().getFullYear() - 1;
+
+const jokes = [
+  "This group should not be trusted with free time.",
+  "Legally, this year might be a mistake.",
+  "Somehow you all survived again.",
+  "No one learned anything.",
+  "Peak chaos achieved.",
+  "We need to talk about your decisions.",
+  "Aliens avoid this group."
+];
+
+const baseSlides = [
+  { title:`Let's rewind ${groupName}'s ${year}`, text:"" },
+  { title:"Memes", list:data.memes||[] },
+  { title:"Moments", list:data.moments||[] },
+  { title:"Phrases", list:data.phrases||[] },
+  { title:"Inside jokes", list:data.jokes||[] },
+  { title:"Final", text:"And then? Who knows what's gonna happen next year." }
+];
+
+let slides=[];
+baseSlides.forEach((s,i)=>{
+  slides.push(s);
+  if(i>0 && i<baseSlides.length-1) slides.push({joke:true});
+});
+
+let i=0;
+let songIndex=0;
+
+function animate(el){
+  const a=["zoomIn","slideLeft","fadeSoft"];
+  el.classList.add(a[Math.floor(Math.random()*a.length)]);
+}
+
+function render(){
+  const wrap=document.getElementById('wrap');
+  wrap.innerHTML="";
+
+  const s=slides[i];
+  const el=document.createElement('div');
+  el.className='slide active';
+
+  animate(el);
+
+  if(s.joke){
+    el.classList.add('jokeSlide');
+    el.innerText=jokes[Math.floor(Math.random()*jokes.length)];
+  } else {
+    let html=`<h1>${s.title}</h1>`;
+    if(s.text) html+=`<div class='text'>${s.text}</div>`;
+    if(s.list) html+=`<div class='list'>${s.list.map(x=>`<div class='item'>${x}</div>`).join('')}</div>`;
+
+    if(i===slides.length-1){
+      html+=`<button class='download' onclick='downloadRewind()'>Download rewind file</button>`;
+    }
+
+    el.innerHTML=html;
+  }
+
+  wrap.appendChild(el);
+  setSong();
+}
+
+function downloadRewind(){
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url = URL.createObjectURL(blob);
+
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`rewind-${groupName}-${year}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
+}
+
+function setSong(){
+  const audio=document.getElementById('audio');
+  if(!data.songs || !data.songs.length) return;
+
+  audio.src=data.songs[songIndex%data.songs.length].preview;
+  audio.play().catch(()=>document.addEventListener('click',()=>audio.play(),{once:true}));
+  songIndex++;
+}
+
+function next(){if(i<slides.length-1){i++;render();}}
+function prev(){if(i>0){i--;render();}}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight')next();
+  if(e.key==='ArrowLeft')prev();
+});
+
+render();
+</script>
+</body>
+</html>
