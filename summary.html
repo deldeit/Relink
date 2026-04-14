@@ -126,8 +126,9 @@ h1{
   max-height:65vh;
   object-fit:cover;
   border-radius:18px;
-  transition:all 0.6s ease;
   box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  opacity:1;
+  transition:opacity 0.8s ease, transform 0.8s ease;
 }
 
 .carousel-controls{
@@ -222,10 +223,34 @@ baseSlides.forEach((s,i)=>{
 
 let i=0;
 let photoIndex=0;
+let photoTimer=null;
 
 function animate(el){
   const a=["zoomIn","slideLeft","fadeSoft"];
   el.classList.add(a[Math.floor(Math.random()*a.length)]);
+}
+
+function startCarousel(){
+  stopCarousel();
+  const photos = slides[i].photos;
+  if(!photos || photos.length<=1) return;
+
+  photoTimer = setInterval(()=>{
+    photoIndex = (photoIndex + 1) % photos.length;
+    const img = document.getElementById('img');
+    if(img){
+      img.style.opacity = 0;
+      setTimeout(()=>{
+        img.src = photos[photoIndex];
+        img.style.opacity = 1;
+      },300);
+    }
+  }, 2200);
+}
+
+function stopCarousel(){
+  if(photoTimer) clearInterval(photoTimer);
+  photoTimer = null;
 }
 
 function render(){
@@ -241,18 +266,17 @@ function render(){
   if(s.joke){
     el.classList.add('joke');
     el.innerText=jokes[Math.floor(Math.random()*jokes.length)];
+    stopCarousel();
   }
   else if(s.photos){
+    photoIndex = 0;
     el.innerHTML=`
       <h1>${s.title}</h1>
       <div class="carousel">
-        <img id="img" src="${s.photos[photoIndex]}">
-        <div class="carousel-controls">
-          <button onclick="prevPhoto(event)">Prev</button>
-          <button onclick="nextPhoto(event)">Next</button>
-        </div>
+        <img id="img" src="${s.photos[0]}">
       </div>
     `;
+    startCarousel();
   }
   else{
     let html=`<h1>${s.title}</h1>`;
@@ -262,27 +286,25 @@ function render(){
       html+=`<button class="download" onclick="download()">Download</button>`;
     }
     el.innerHTML=html;
+    stopCarousel();
   }
 
   wrap.appendChild(el);
 }
 
-function nextPhoto(e){
-  e.stopPropagation();
-  const photos=slides[i].photos;
-  photoIndex=(photoIndex+1)%photos.length;
-  document.getElementById('img').src=photos[photoIndex];
+function next(){
+  if(i<slides.length-1){
+    i++;
+    render();
+  }
 }
 
-function prevPhoto(e){
-  e.stopPropagation();
-  const photos=slides[i].photos;
-  photoIndex=(photoIndex-1+photos.length)%photos.length;
-  document.getElementById('img').src=photos[photoIndex];
+function prev(){
+  if(i>0){
+    i--;
+    render();
+  }
 }
-
-function next(){if(i<slides.length-1){i++;photoIndex=0;render();}}
-function prev(){if(i>0){i--;photoIndex=0;render();}}
 
 function download(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
