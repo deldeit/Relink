@@ -22,12 +22,10 @@ body{
   text-align:center;
 }
 
-/* 🔥 FULL BUTTON FONT FIX */
 button, .pill, .add-btn, .upload-btn{
   font-family:'Climate Crisis', sans-serif !important;
 }
 
-/* MAIN CARD */
 .card{
   width:min(760px,92vw);
   background:rgba(0,0,0,0.6);
@@ -43,7 +41,6 @@ button, .pill, .add-btn, .upload-btn{
   z-index:2;
 }
 
-/* STEPS */
 .step{display:none;width:100%;}
 .step.active{display:block;}
 
@@ -60,7 +57,6 @@ input{
   font-family:Arial;
 }
 
-/* LIST ITEMS */
 .list-item{
   display:flex;
   gap:10px;
@@ -77,7 +73,6 @@ input{
   color:white;
 }
 
-/* UPLOAD */
 .upload-btn{
   padding:14px 22px;
   border-radius:999px;
@@ -90,7 +85,6 @@ input{
 
 input[type="file"]{display:none;}
 
-/* PREVIEW */
 .preview-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(90px,1fr));
@@ -106,13 +100,11 @@ input[type="file"]{display:none;}
 
 .preview img{width:100%;height:100%;object-fit:cover;}
 
-/* NAV */
 .nav{
   display:flex;
   justify-content:space-between;
   width:100%;
   margin-top:22px;
-  position:relative;
   z-index:5;
 }
 
@@ -125,27 +117,32 @@ input[type="file"]{display:none;}
   color:black;
 }
 
-/* SONG SUGGESTIONS (CRITICAL FIX) */
 #suggestions{
-  position:relative;
-  z-index:999;
   margin-top:10px;
+  z-index:999;
+  position:relative;
 }
 
 .song-item{
-  padding:10px;
+  font-family:Arial, sans-serif;
+  padding:12px;
   margin-top:6px;
-  border-radius:10px;
-  background:rgba(255,255,255,0.1);
+  border-radius:12px;
+  background:rgba(255,255,255,0.08);
   cursor:pointer;
-  pointer-events:auto;
+  transition:0.2s;
 }
 
 .song-item:hover{
-  background:rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.2);
 }
 
-/* PROGRESS */
+.song-item.selected{
+  background:linear-gradient(135deg,#7c3aed,#4f46e5);
+  box-shadow:0 0 16px rgba(124,58,237,0.6);
+  color:white;
+}
+
 #progressWrap{
   display:none;
   position:fixed;
@@ -163,42 +160,42 @@ input[type="file"]{display:none;}
 
 <div class="card">
 
-  <div class="step active" id="step1">
-    <h2>What is your friend group's name?</h2>
-    <input id="groupName">
-  </div>
+<div class="step active" id="step1">
+<h2>What is your friend group's name?</h2>
+<input id="groupName">
+</div>
 
-  <div class="step" id="step2">
-    <h2>Upload images</h2>
-    <label class="upload-btn" for="fileInput">Upload</label>
-    <input type="file" id="fileInput" multiple accept="image/*">
-    <div class="preview-grid" id="previewGrid"></div>
-  </div>
+<div class="step" id="step2">
+<h2>Upload images</h2>
+<label class="upload-btn" for="fileInput">Upload</label>
+<input type="file" id="fileInput" multiple accept="image/*">
+<div class="preview-grid" id="previewGrid"></div>
+</div>
 
-  <div class="step" id="step3"><h2>Memes</h2><div id="memes"></div><button class="add-btn" type="button" onclick="addItem('memes')">Add</button></div>
-  <div class="step" id="step4"><h2>Moments</h2><div id="moments"></div><button class="add-btn" type="button" onclick="addItem('moments')">Add</button></div>
-  <div class="step" id="step5"><h2>Phrases</h2><div id="phrases"></div><button class="add-btn" type="button" onclick="addItem('phrases')">Add</button></div>
-  <div class="step" id="step6"><h2>Inside jokes</h2><div id="jokes"></div><button class="add-btn" type="button" onclick="addItem('jokes')">Add</button></div>
+<div class="step" id="step3"><h2>Memes</h2><div id="memes"></div><button class="add-btn" onclick="addItem('memes')">Add</button></div>
+<div class="step" id="step4"><h2>Moments</h2><div id="moments"></div><button class="add-btn" onclick="addItem('moments')">Add</button></div>
+<div class="step" id="step5"><h2>Phrases</h2><div id="phrases"></div><button class="add-btn" onclick="addItem('phrases')">Add</button></div>
+<div class="step" id="step6"><h2>Inside jokes</h2><div id="jokes"></div><button class="add-btn" onclick="addItem('jokes')">Add</button></div>
 
-  <div class="step" id="step7">
-    <h2>Songs</h2>
-    <input id="songInput" placeholder="Search songs">
-    <div id="suggestions"></div>
-    <div id="songList"></div>
-  </div>
+<div class="step" id="step7">
+<h2>Songs</h2>
+<input id="songInput">
+<div id="suggestions"></div>
+<div id="songList"></div>
+</div>
 
-  <div class="nav">
-    <button class="pill" type="button" id="backBtn">Back</button>
-    <button class="pill" type="button" id="nextBtn">Next</button>
-  </div>
+<div class="nav">
+<button class="pill" id="backBtn">Back</button>
+<button class="pill" id="nextBtn">Next</button>
+</div>
 
 </div>
 
 <div id="progressWrap">
-  <div>Generating your rewind...</div>
-  <div style="width:300px;height:10px;background:#333;margin-top:20px;border-radius:999px;overflow:hidden;">
-    <div id="progress" style="height:100%;width:0%;background:white;"></div>
-  </div>
+<div>Generating your rewind...</div>
+<div style="width:300px;height:10px;background:#333;margin-top:20px;border-radius:999px;overflow:hidden;">
+<div id="progress" style="height:100%;width:0%;background:white;"></div>
+</div>
 </div>
 
 <script>
@@ -209,125 +206,126 @@ let images = [];
 let songs = [];
 
 function show(n){
-  current = n;
-  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-  document.getElementById('step' + n).classList.add('active');
+current = n;
+document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+document.getElementById('step'+n).classList.add('active');
 }
 
 function nextStep(){
-  if(current < total){
-    show(current + 1);
-  } else {
-    startGeneration();
-  }
+if(current < total){
+show(current + 1);
+} else {
+startGeneration();
+}
 }
 
 function prevStep(){
-  if(current > 1) show(current - 1);
+if(current > 1) show(current - 1);
 }
 
 document.getElementById('nextBtn').addEventListener('click', nextStep);
 document.getElementById('backBtn').addEventListener('click', prevStep);
 
-/* ADD ITEMS */
 function addItem(id){
-  const c = document.getElementById(id);
-  const d = document.createElement('div');
-  d.className = 'list-item';
-  d.innerHTML = '<input type="text">';
-  c.appendChild(d);
+const c = document.getElementById(id);
+const d = document.createElement('div');
+d.className = 'list-item';
+d.innerHTML = '<input type="text">';
+c.appendChild(d);
 }
 
-/* IMAGES */
 document.getElementById('fileInput').addEventListener('change', (e)=>{
-  const grid = document.getElementById('previewGrid');
-  grid.innerHTML = '';
-  images = [];
+const grid = document.getElementById('previewGrid');
+grid.innerHTML = '';
+images = [];
 
-  [...e.target.files].forEach(f=>{
-    const r = new FileReader();
-    r.onload = ev=>{
-      images.push(ev.target.result);
-      const d = document.createElement('div');
-      d.className='preview';
-      d.innerHTML = `<img src="${ev.target.result}">`;
-      grid.appendChild(d);
-    };
-    r.readAsDataURL(f);
-  });
+[...e.target.files].forEach(f=>{
+const r = new FileReader();
+r.onload = ev=>{
+images.push(ev.target.result);
+const d = document.createElement('div');
+d.className='preview';
+d.innerHTML = `<img src="${ev.target.result}">`;
+grid.appendChild(d);
+};
+r.readAsDataURL(f);
+});
 });
 
-/* SONG SEARCH (DEE ZER JSONP SAFE) */
 window.handleDeezer = function(data){
-  const box = document.getElementById('suggestions');
-  box.innerHTML = '';
+const box = document.getElementById('suggestions');
+box.innerHTML = '';
 
-  if(!data || !data.data) return;
+if(!data || !data.data) return;
 
-  data.data.slice(0,5).forEach(t=>{
-    const div = document.createElement('div');
-    div.className = 'song-item';
-    div.textContent = `${t.title} - ${t.artist.name}`;
+data.data.slice(0,5).forEach(t=>{
+const div = document.createElement('div');
+div.className = 'song-item';
+div.textContent = `${t.title} - ${t.artist.name}`;
 
-    div.onclick = ()=>{
-      songs.push({
-        title: div.textContent,
-        preview: t.preview
-      });
+div.onclick = ()=>{
+document.querySelectorAll('.song-item').forEach(el=>el.classList.remove('selected'));
+div.classList.add('selected');
 
-      document.getElementById('songList')
-        .insertAdjacentHTML('beforeend',
-        `<div class="list-item"><input value="${div.textContent}" disabled></div>`
-      );
+songs.push({
+title: div.textContent,
+preview: t.preview
+});
 
-      box.innerHTML = '';
-      document.getElementById('songInput').value = '';
-    };
+document.getElementById('songList').insertAdjacentHTML('beforeend',
+`<div class="list-item"><input value="${div.textContent}" disabled></div>`
+);
 
-    box.appendChild(div);
-  });
+box.innerHTML = '';
+document.getElementById('songInput').value = '';
+};
+
+box.appendChild(div);
+});
 };
 
 let debounce;
 document.getElementById('songInput').addEventListener('input', (e)=>{
-  clearTimeout(debounce);
-  const q = e.target.value;
-  if(q.length < 2) return;
+clearTimeout(debounce);
+const q = e.target.value;
+if(q.length < 2) return;
 
-  debounce = setTimeout(()=>{
-    const s = document.createElement('script');
-    s.src = `https://api.deezer.com/search?q=${encodeURIComponent(q)}&output=jsonp&callback=handleDeezer`;
-    document.body.appendChild(s);
-
-    setTimeout(()=> s.remove(), 2000);
-  }, 250);
+debounce = setTimeout(()=>{
+const s = document.createElement('script');
+s.src = `https://api.deezer.com/search?q=${encodeURIComponent(q)}&output=jsonp&callback=handleDeezer`;
+document.body.appendChild(s);
+setTimeout(()=>s.remove(),2000);
+},250);
 });
 
-/* GENERATION */
 function startGeneration(){
-  const data = {
-    groupName: document.getElementById('groupName').value,
-    images,
-    songs
-  };
+const data = {
+groupName: document.getElementById('groupName').value,
+images,
+songs,
+memes:[...document.querySelectorAll('#memes input')].map(i=>i.value),
+moments:[...document.querySelectorAll('#moments input')].map(i=>i.value),
+phrases:[...document.querySelectorAll('#phrases input')].map(i=>i.value),
+jokes:[...document.querySelectorAll('#jokes input')].map(i=>i.value)
+};
 
-  localStorage.setItem('relinkData', JSON.stringify(data));
+localStorage.setItem('relinkData', JSON.stringify(data));
 
-  document.querySelector('.card').style.display='none';
-  document.getElementById('progressWrap').style.display='flex';
+document.querySelector('.card').style.display='none';
+document.getElementById('progressWrap').style.display='flex';
 
-  let p=0;
-  const bar=document.getElementById('progress');
+let p=0;
+const bar=document.getElementById('progress');
 
-  const i=setInterval(()=>{
-    p+=2;
-    bar.style.width=p+'%';
+const i=setInterval(()=>{
+p+=2;
+bar.style.width=p+'%';
 
-    if(p>=100){
-      clearInterval(i);
-      window.location.href='summary.html';
-    }
-  },40);
+if(p>=100){
+clearInterval(i);
+window.location.href='summary.html';
+}
+},40);
 }
 
 show(1);
