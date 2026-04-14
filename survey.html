@@ -55,6 +55,7 @@ input{
   margin-top:10px;
   text-align:center;
   font-family:Arial;
+  box-sizing:border-box;
 }
 
 .list-item{
@@ -168,6 +169,27 @@ input[type="file"]{display:none;}
   flex-direction:column;
   z-index:999;
 }
+
+.error-toast{
+  position:fixed;
+  bottom:32px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(220,38,38,0.9);
+  color:white;
+  padding:12px 24px;
+  border-radius:999px;
+  font-size:0.85rem;
+  font-family:Arial, sans-serif;
+  z-index:9999;
+  opacity:0;
+  transition:opacity 0.3s;
+  pointer-events:none;
+}
+
+.error-toast.visible{
+  opacity:1;
+}
 </style>
 </head>
 
@@ -175,43 +197,45 @@ input[type="file"]{display:none;}
 
 <div class="card">
 
-<div class="step active" id="step1">
-<h2>What is your friend group's name?</h2>
-<input id="groupName">
-</div>
+  <div class="step active" id="step1">
+    <h2>What is your friend group's name?</h2>
+    <input id="groupName">
+  </div>
 
-<div class="step" id="step2">
-<h2>Upload images</h2>
-<label class="upload-btn" for="fileInput">Upload</label>
-<input type="file" id="fileInput" multiple accept="image/*">
-<div class="preview-grid" id="previewGrid"></div>
-</div>
+  <div class="step" id="step2">
+    <h2>Upload images</h2>
+    <label class="upload-btn" for="fileInput">Upload</label>
+    <input type="file" id="fileInput" multiple accept="image/*">
+    <div class="preview-grid" id="previewGrid"></div>
+  </div>
 
-<div class="step" id="step3"><h2>Memes</h2><div id="memes"></div><button class="add-btn" onclick="addItem('memes')">Add</button></div>
-<div class="step" id="step4"><h2>Moments</h2><div id="moments"></div><button class="add-btn" onclick="addItem('moments')">Add</button></div>
-<div class="step" id="step5"><h2>Phrases</h2><div id="phrases"></div><button class="add-btn" onclick="addItem('phrases')">Add</button></div>
-<div class="step" id="step6"><h2>Inside jokes</h2><div id="jokes"></div><button class="add-btn" onclick="addItem('jokes')">Add</button></div>
+  <div class="step" id="step3"><h2>Memes</h2><div id="memes"></div><button class="add-btn" onclick="addItem('memes')">Add</button></div>
+  <div class="step" id="step4"><h2>Moments</h2><div id="moments"></div><button class="add-btn" onclick="addItem('moments')">Add</button></div>
+  <div class="step" id="step5"><h2>Phrases</h2><div id="phrases"></div><button class="add-btn" onclick="addItem('phrases')">Add</button></div>
+  <div class="step" id="step6"><h2>Inside jokes</h2><div id="jokes"></div><button class="add-btn" onclick="addItem('jokes')">Add</button></div>
 
-<div class="step" id="step7">
-<h2>Songs</h2>
-<input id="songInput">
-<div id="suggestions"></div>
-<div id="songList"></div>
-</div>
+  <div class="step" id="step7">
+    <h2>Songs</h2>
+    <input id="songInput">
+    <div id="suggestions"></div>
+    <div id="songList"></div>
+  </div>
 
-<div class="nav">
-<button class="pill" id="backBtn">Back</button>
-<button class="pill" id="nextBtn">Next</button>
-</div>
+  <div class="nav">
+    <button class="pill" id="backBtn">Back</button>
+    <button class="pill" id="nextBtn">Next</button>
+  </div>
 
 </div>
 
 <div id="progressWrap">
-<div>Generating your rewind...</div>
-<div style="width:300px;height:10px;background:#333;margin-top:20px;border-radius:999px;overflow:hidden;">
-<div id="progress" style="height:100%;width:0%;background:white;"></div>
+  <div>Generating your rewind...</div>
+  <div style="width:300px;height:10px;background:#333;margin-top:20px;border-radius:999px;overflow:hidden;">
+    <div id="progress" style="height:100%;width:0%;background:white;transition:width 0.1s;"></div>
+  </div>
 </div>
-</div>
+
+<div class="error-toast" id="errorToast"></div>
 
 <script>
 let current = 1;
@@ -219,124 +243,160 @@ const total = 7;
 let images = [];
 let songs = [];
 
+/* ── navigazione ── */
 function show(n){
-current = n;
-document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
-document.getElementById('step'+n).classList.add('active');
+  current = n;
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  document.getElementById('nextBtn').textContent = (n === total) ? 'Done' : 'Next';
 }
 
 function nextStep(){
-if(current < total){
-show(current+1);
-}else{
-startGeneration();
-}
+  if(current < total){
+    show(current + 1);
+  } else {
+    startGeneration();
+  }
 }
 
 function prevStep(){
-if(current > 1) show(current-1);
+  if(current > 1) show(current - 1);
 }
 
 document.getElementById('nextBtn').addEventListener('click', nextStep);
 document.getElementById('backBtn').addEventListener('click', prevStep);
 
+/* ── liste dinamiche ── */
 function addItem(id){
-const c=document.getElementById(id);
-const d=document.createElement('div');
-d.className='list-item';
-d.innerHTML='<input type="text">';
-c.appendChild(d);
+  const c = document.getElementById(id);
+  const d = document.createElement('div');
+  d.className = 'list-item';
+  d.innerHTML = '<input type="text">';
+  c.appendChild(d);
+  d.querySelector('input').focus();
 }
 
-document.getElementById('fileInput').addEventListener('change', e=>{
-const grid=document.getElementById('previewGrid');
-grid.innerHTML='';
-images=[];
+/* ── upload immagini ── */
+document.getElementById('fileInput').addEventListener('change', e => {
+  const grid = document.getElementById('previewGrid');
+  grid.innerHTML = '';
+  images = [];
 
-[...e.target.files].forEach(f=>{
-const r=new FileReader();
-r.onload=ev=>{
-images.push(ev.target.result);
-const d=document.createElement('div');
-d.className='preview';
-d.innerHTML=`<img src="${ev.target.result}">`;
-grid.appendChild(d);
-};
-r.readAsDataURL(f);
+  [...e.target.files].forEach(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      images.push(ev.target.result);
+      const d = document.createElement('div');
+      d.className = 'preview';
+      d.innerHTML = `<img src="${ev.target.result}">`;
+      grid.appendChild(d);
+    };
+    r.readAsDataURL(f);
+  });
 });
-});
 
-window.handleDeezer=function(data){
-const box=document.getElementById('suggestions');
-box.innerHTML='';
-if(!data||!data.data)return;
+/* ── ricerca canzoni (Deezer JSONP) ── */
+window.handleDeezer = function(data){
+  const box = document.getElementById('suggestions');
+  box.innerHTML = '';
+  if(!data || !data.data) return;
 
-data.data.slice(0,5).forEach(t=>{
-const div=document.createElement('div');
-div.className='song-item';
-div.textContent=`${t.title} - ${t.artist.name}`;
+  data.data.slice(0, 5).forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'song-item';
+    div.textContent = `${t.title} - ${t.artist.name}`;
 
-div.onclick=()=>{
-document.querySelectorAll('.song-item').forEach(e=>e.classList.remove('selected'));
-div.classList.add('selected');
+    div.onclick = () => {
+      document.querySelectorAll('.song-item').forEach(e => e.classList.remove('selected'));
+      div.classList.add('selected');
 
-songs.push({title:div.textContent,preview:t.preview});
+      songs.push({ title: div.textContent, preview: t.preview });
 
-document.getElementById('songList').insertAdjacentHTML('beforeend',
-`<div class="list-item"><input value="${div.textContent}" disabled></div>`
-);
+      document.getElementById('songList').insertAdjacentHTML('beforeend',
+        `<div class="list-item"><input value="${div.textContent}" disabled></div>`
+      );
 
-box.innerHTML='';
-document.getElementById('songInput').value='';
-};
+      box.innerHTML = '';
+      document.getElementById('songInput').value = '';
+    };
 
-box.appendChild(div);
-});
+    box.appendChild(div);
+  });
 };
 
 let debounce;
-document.getElementById('songInput').addEventListener('input',e=>{
-clearTimeout(debounce);
-const q=e.target.value;
-if(q.length<2)return;
+document.getElementById('songInput').addEventListener('input', e => {
+  clearTimeout(debounce);
+  const q = e.target.value;
+  if(q.length < 2) return;
 
-debounce=setTimeout(()=>{
-const s=document.createElement('script');
-s.src=`https://api.deezer.com/search?q=${encodeURIComponent(q)}&output=jsonp&callback=handleDeezer`;
-document.body.appendChild(s);
-setTimeout(()=>s.remove(),2000);
-},250);
+  debounce = setTimeout(() => {
+    const s = document.createElement('script');
+    s.src = `https://api.deezer.com/search?q=${encodeURIComponent(q)}&output=jsonp&callback=handleDeezer`;
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 2000);
+  }, 250);
 });
 
+/* ── toast di errore ── */
+function showError(msg){
+  const toast = document.getElementById('errorToast');
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 4000);
+}
+
+/* ── generazione ── */
 function startGeneration(){
-const data={
-groupName:document.getElementById('groupName').value,
-images,
-songs,
-memes:[...document.querySelectorAll('#memes input')].map(i=>i.value),
-moments:[...document.querySelectorAll('#moments input')].map(i=>i.value),
-phrases:[...document.querySelectorAll('#phrases input')].map(i=>i.value),
-jokes:[...document.querySelectorAll('#jokes input')].map(i=>i.value)
-};
 
-localStorage.setItem('relinkData',JSON.stringify(data));
+  /* Dati leggeri (testo + canzoni) */
+  const lightData = {
+    groupName: document.getElementById('groupName').value,
+    songs,
+    memes:   [...document.querySelectorAll('#memes input')].map(i => i.value),
+    moments: [...document.querySelectorAll('#moments input')].map(i => i.value),
+    phrases: [...document.querySelectorAll('#phrases input')].map(i => i.value),
+    jokes:   [...document.querySelectorAll('#jokes input')].map(i => i.value)
+  };
 
-document.querySelector('.card').style.display='none';
-document.getElementById('progressWrap').style.display='flex';
+  /* Salva in sessionStorage con fallback separato per le immagini */
+  try {
+    sessionStorage.setItem('relinkData', JSON.stringify(lightData));
+  } catch(e) {
+    showError('Could not save data. Try with fewer fields.');
+    console.error('sessionStorage error (data):', e);
+    return;
+  }
 
-let p=0;
-const bar=document.getElementById('progress');
+  try {
+    sessionStorage.setItem('relinkImages', JSON.stringify(images));
+  } catch(e) {
+    /* Immagini troppo pesanti: procedi comunque senza di esse */
+    console.warn('Images too large for sessionStorage, skipping:', e);
+    try {
+      sessionStorage.setItem('relinkImages', JSON.stringify([]));
+    } catch(_){}
+    showError('Images are too large and will not be included.');
+  }
 
-const i=setInterval(()=>{
-p+=2;
-bar.style.width=p+'%';
-if(p>=100){
-clearInterval(i);
-window.location.href='summary.html';
+  /* Avvia la barra di progresso e poi reindirizza */
+  document.querySelector('.card').style.display = 'none';
+  document.getElementById('progressWrap').style.display = 'flex';
+
+  let p = 0;
+  const bar = document.getElementById('progress');
+
+  const interval = setInterval(() => {
+    p += 2;
+    bar.style.width = p + '%';
+    if(p >= 100){
+      clearInterval(interval);
+      window.location.href = 'summary.html';
+    }
+  }, 40);
 }
-},40);
-}
 
+/* ── init ── */
 show(1);
 </script>
 
