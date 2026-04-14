@@ -22,7 +22,7 @@ body{
   text-align:center;
 }
 
-button, .pill, .add-btn, .upload-btn{
+button,.pill,.add-btn,.upload-btn{
   font-family:'Climate Crisis', sans-serif !important;
 }
 
@@ -119,8 +119,8 @@ input[type="file"]{display:none;}
 
 #suggestions{
   margin-top:10px;
-  z-index:999;
   position:relative;
+  z-index:999;
 }
 
 .song-item{
@@ -131,6 +131,11 @@ input[type="file"]{display:none;}
   background:rgba(255,255,255,0.08);
   cursor:pointer;
   transition:0.2s;
+}
+
+.song-item,
+.song-item *{
+  font-family:Arial, sans-serif !important;
 }
 
 .song-item:hover{
@@ -201,83 +206,78 @@ input[type="file"]{display:none;}
 <script>
 let current = 1;
 const total = 7;
-
 let images = [];
 let songs = [];
 
 function show(n){
 current = n;
-document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
 document.getElementById('step'+n).classList.add('active');
 }
 
 function nextStep(){
 if(current < total){
-show(current + 1);
-} else {
+show(current+1);
+}else{
 startGeneration();
 }
 }
 
 function prevStep(){
-if(current > 1) show(current - 1);
+if(current > 1) show(current-1);
 }
 
 document.getElementById('nextBtn').addEventListener('click', nextStep);
 document.getElementById('backBtn').addEventListener('click', prevStep);
 
 function addItem(id){
-const c = document.getElementById(id);
-const d = document.createElement('div');
-d.className = 'list-item';
-d.innerHTML = '<input type="text">';
+const c=document.getElementById(id);
+const d=document.createElement('div');
+d.className='list-item';
+d.innerHTML='<input type="text">';
 c.appendChild(d);
 }
 
-document.getElementById('fileInput').addEventListener('change', (e)=>{
-const grid = document.getElementById('previewGrid');
-grid.innerHTML = '';
-images = [];
+document.getElementById('fileInput').addEventListener('change', e=>{
+const grid=document.getElementById('previewGrid');
+grid.innerHTML='';
+images=[];
 
 [...e.target.files].forEach(f=>{
-const r = new FileReader();
-r.onload = ev=>{
+const r=new FileReader();
+r.onload=ev=>{
 images.push(ev.target.result);
-const d = document.createElement('div');
+const d=document.createElement('div');
 d.className='preview';
-d.innerHTML = `<img src="${ev.target.result}">`;
+d.innerHTML=`<img src="${ev.target.result}">`;
 grid.appendChild(d);
 };
 r.readAsDataURL(f);
 });
 });
 
-window.handleDeezer = function(data){
-const box = document.getElementById('suggestions');
-box.innerHTML = '';
-
-if(!data || !data.data) return;
+window.handleDeezer=function(data){
+const box=document.getElementById('suggestions');
+box.innerHTML='';
+if(!data||!data.data)return;
 
 data.data.slice(0,5).forEach(t=>{
-const div = document.createElement('div');
-div.className = 'song-item';
-div.textContent = `${t.title} - ${t.artist.name}`;
+const div=document.createElement('div');
+div.className='song-item';
+div.textContent=`${t.title} - ${t.artist.name}`;
 
-div.onclick = ()=>{
-document.querySelectorAll('.song-item').forEach(el=>el.classList.remove('selected'));
+div.onclick=()=>{
+document.querySelectorAll('.song-item').forEach(e=>e.classList.remove('selected'));
 div.classList.add('selected');
 
-songs.push({
-title: div.textContent,
-preview: t.preview
-});
+songs.push({title:div.textContent,preview:t.preview});
 
 document.getElementById('songList').insertAdjacentHTML('beforeend',
 `<div class="list-item"><input value="${div.textContent}" disabled></div>`
 );
 
-box.innerHTML = '';
-document.getElementById('songInput').value = '';
+box.innerHTML='';
+document.getElementById('songInput').value='';
 };
 
 box.appendChild(div);
@@ -285,22 +285,22 @@ box.appendChild(div);
 };
 
 let debounce;
-document.getElementById('songInput').addEventListener('input', (e)=>{
+document.getElementById('songInput').addEventListener('input',e=>{
 clearTimeout(debounce);
-const q = e.target.value;
-if(q.length < 2) return;
+const q=e.target.value;
+if(q.length<2)return;
 
-debounce = setTimeout(()=>{
-const s = document.createElement('script');
-s.src = `https://api.deezer.com/search?q=${encodeURIComponent(q)}&output=jsonp&callback=handleDeezer`;
+debounce=setTimeout(()=>{
+const s=document.createElement('script');
+s.src=`https://api.deezer.com/search?q=${encodeURIComponent(q)}&output=jsonp&callback=handleDeezer`;
 document.body.appendChild(s);
 setTimeout(()=>s.remove(),2000);
 },250);
 });
 
 function startGeneration(){
-const data = {
-groupName: document.getElementById('groupName').value,
+const data={
+groupName:document.getElementById('groupName').value,
 images,
 songs,
 memes:[...document.querySelectorAll('#memes input')].map(i=>i.value),
@@ -309,7 +309,7 @@ phrases:[...document.querySelectorAll('#phrases input')].map(i=>i.value),
 jokes:[...document.querySelectorAll('#jokes input')].map(i=>i.value)
 };
 
-localStorage.setItem('relinkData', JSON.stringify(data));
+localStorage.setItem('relinkData',JSON.stringify(data));
 
 document.querySelector('.card').style.display='none';
 document.getElementById('progressWrap').style.display='flex';
@@ -320,7 +320,6 @@ const bar=document.getElementById('progress');
 const i=setInterval(()=>{
 p+=2;
 bar.style.width=p+'%';
-
 if(p>=100){
 clearInterval(i);
 window.location.href='summary.html';
