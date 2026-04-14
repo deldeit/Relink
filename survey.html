@@ -37,8 +37,6 @@ button,.pill,.add-btn,.upload-btn{
   display:flex;
   flex-direction:column;
   align-items:center;
-  position:relative;
-  z-index:2;
 }
 
 .step{display:none;width:100%;}
@@ -106,7 +104,6 @@ input[type="file"]{display:none;}
   justify-content:space-between;
   width:100%;
   margin-top:22px;
-  z-index:5;
 }
 
 .pill{
@@ -120,43 +117,20 @@ input[type="file"]{display:none;}
 
 #suggestions{
   margin-top:10px;
-  position:relative;
-  z-index:999;
-  font-family:Arial, sans-serif;
+  font-family:Arial;
 }
 
 .song-item{
-  font-family:Arial, sans-serif;
+  font-family:Arial;
   padding:12px;
   margin-top:6px;
   border-radius:12px;
   background:rgba(255,255,255,0.08);
   cursor:pointer;
-  transition:0.2s;
-}
-
-.song-item:hover{
-  background:rgba(255,255,255,0.2);
 }
 
 .song-item.selected{
   background:linear-gradient(135deg,#7c3aed,#4f46e5);
-  box-shadow:0 0 16px rgba(124,58,237,0.6);
-  color:white;
-}
-
-#step7{
-  font-family:'Climate Crisis', sans-serif;
-}
-
-#step7 input{
-  font-family:'Climate Crisis', sans-serif !important;
-  background:rgba(255,255,255,0.9);
-  color:black;
-}
-
-#songList input{
-  font-family:Arial, sans-serif;
 }
 
 #progressWrap{
@@ -167,7 +141,6 @@ input[type="file"]{display:none;}
   align-items:center;
   background:rgba(0,0,0,0.6);
   flex-direction:column;
-  z-index:999;
 }
 
 .error-toast{
@@ -179,17 +152,10 @@ input[type="file"]{display:none;}
   color:white;
   padding:12px 24px;
   border-radius:999px;
-  font-size:0.85rem;
-  font-family:Arial, sans-serif;
-  z-index:9999;
   opacity:0;
-  transition:opacity 0.3s;
-  pointer-events:none;
+  transition:0.3s;
 }
-
-.error-toast.visible{
-  opacity:1;
-}
+.error-toast.visible{opacity:1;}
 </style>
 </head>
 
@@ -231,19 +197,20 @@ input[type="file"]{display:none;}
 <div id="progressWrap">
   <div>Generating your rewind...</div>
   <div style="width:300px;height:10px;background:#333;margin-top:20px;border-radius:999px;overflow:hidden;">
-    <div id="progress" style="height:100%;width:0%;background:white;transition:width 0.1s;"></div>
+    <div id="progress" style="height:100%;width:0%;background:white;"></div>
   </div>
 </div>
 
 <div class="error-toast" id="errorToast"></div>
 
 <script>
+
 let current = 1;
 const total = 7;
+
 let images = [];
 let songs = [];
 
-/* ── navigazione ── */
 function show(n){
   current = n;
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -252,70 +219,60 @@ function show(n){
 }
 
 function nextStep(){
-  if(current < total){
-    show(current + 1);
-  } else {
-    startGeneration();
-  }
+  if(current < total) show(current + 1);
+  else startGeneration();
 }
 
 function prevStep(){
   if(current > 1) show(current - 1);
 }
 
-document.getElementById('nextBtn').addEventListener('click', nextStep);
-document.getElementById('backBtn').addEventListener('click', prevStep);
+document.getElementById('nextBtn').onclick = nextStep;
+document.getElementById('backBtn').onclick = prevStep;
 
-/* ── liste dinamiche ── */
 function addItem(id){
   const c = document.getElementById(id);
   const d = document.createElement('div');
   d.className = 'list-item';
   d.innerHTML = '<input type="text">';
   c.appendChild(d);
-  d.querySelector('input').focus();
 }
 
-/* ── upload immagini ── */
 document.getElementById('fileInput').addEventListener('change', e => {
   const grid = document.getElementById('previewGrid');
   grid.innerHTML = '';
   images = [];
 
-  [...e.target.files].forEach(f => {
-    const r = new FileReader();
-    r.onload = ev => {
-      images.push(ev.target.result);
+  [...e.target.files].forEach(file => {
+    const reader = new FileReader();
+
+    reader.onload = ev => {
+      const img = ev.target.result;
+      images.push(img);
+
       const d = document.createElement('div');
       d.className = 'preview';
-      d.innerHTML = `<img src="${ev.target.result}">`;
+      d.innerHTML = `<img src="${img}">`;
       grid.appendChild(d);
     };
-    r.readAsDataURL(f);
+
+    reader.readAsDataURL(file);
   });
 });
 
-/* ── ricerca canzoni (Deezer JSONP) ── */
 window.handleDeezer = function(data){
   const box = document.getElementById('suggestions');
   box.innerHTML = '';
-  if(!data || !data.data) return;
 
-  data.data.slice(0, 5).forEach(t => {
+  data.data?.slice(0,5).forEach(t => {
     const div = document.createElement('div');
     div.className = 'song-item';
     div.textContent = `${t.title} - ${t.artist.name}`;
 
     div.onclick = () => {
-      document.querySelectorAll('.song-item').forEach(e => e.classList.remove('selected'));
-      div.classList.add('selected');
-
       songs.push({ title: div.textContent, preview: t.preview });
-
-      document.getElementById('songList').insertAdjacentHTML('beforeend',
-        `<div class="list-item"><input value="${div.textContent}" disabled></div>`
-      );
-
+      document.getElementById('songList')
+        .insertAdjacentHTML('beforeend', `<div class="list-item"><input disabled value="${div.textContent}"></div>`);
       box.innerHTML = '';
       document.getElementById('songInput').value = '';
     };
@@ -327,59 +284,42 @@ window.handleDeezer = function(data){
 let debounce;
 document.getElementById('songInput').addEventListener('input', e => {
   clearTimeout(debounce);
-  const q = e.target.value;
-  if(q.length < 2) return;
+  if(e.target.value.length < 2) return;
 
   debounce = setTimeout(() => {
     const s = document.createElement('script');
-    s.src = `https://api.deezer.com/search?q=${encodeURIComponent(q)}&output=jsonp&callback=handleDeezer`;
+    s.src = `https://api.deezer.com/search?q=${encodeURIComponent(e.target.value)}&output=jsonp&callback=handleDeezer`;
     document.body.appendChild(s);
     setTimeout(() => s.remove(), 2000);
   }, 250);
 });
 
-/* ── toast di errore ── */
 function showError(msg){
-  const toast = document.getElementById('errorToast');
-  toast.textContent = msg;
-  toast.classList.add('visible');
-  setTimeout(() => toast.classList.remove('visible'), 4000);
+  const t = document.getElementById('errorToast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(()=>t.classList.remove('visible'), 4000);
 }
 
-/* ── generazione ── */
 function startGeneration(){
 
-  /* Dati leggeri (testo + canzoni) */
-  const lightData = {
+  const data = {
     groupName: document.getElementById('groupName').value,
-    songs,
-    memes:   [...document.querySelectorAll('#memes input')].map(i => i.value),
-    moments: [...document.querySelectorAll('#moments input')].map(i => i.value),
-    phrases: [...document.querySelectorAll('#phrases input')].map(i => i.value),
-    jokes:   [...document.querySelectorAll('#jokes input')].map(i => i.value)
+    images: images,
+    songs: songs,
+    memes: [...document.querySelectorAll('#memes input')].map(i=>i.value),
+    moments: [...document.querySelectorAll('#moments input')].map(i=>i.value),
+    phrases: [...document.querySelectorAll('#phrases input')].map(i=>i.value),
+    jokes: [...document.querySelectorAll('#jokes input')].map(i=>i.value)
   };
 
-  /* Salva in sessionStorage con fallback separato per le immagini */
   try {
-    sessionStorage.setItem('relinkData', JSON.stringify(lightData));
+    sessionStorage.setItem('relinkData', JSON.stringify(data));
   } catch(e) {
-    showError('Could not save data. Try with fewer fields.');
-    console.error('sessionStorage error (data):', e);
+    showError('Error saving data');
     return;
   }
 
-  try {
-    sessionStorage.setItem('relinkImages', JSON.stringify(images));
-  } catch(e) {
-    /* Immagini troppo pesanti: procedi comunque senza di esse */
-    console.warn('Images too large for sessionStorage, skipping:', e);
-    try {
-      sessionStorage.setItem('relinkImages', JSON.stringify([]));
-    } catch(_){}
-    showError('Images are too large and will not be included.');
-  }
-
-  /* Avvia la barra di progresso e poi reindirizza */
   document.querySelector('.card').style.display = 'none';
   document.getElementById('progressWrap').style.display = 'flex';
 
@@ -389,6 +329,7 @@ function startGeneration(){
   const interval = setInterval(() => {
     p += 2;
     bar.style.width = p + '%';
+
     if(p >= 100){
       clearInterval(interval);
       window.location.href = 'summary.html';
@@ -396,8 +337,8 @@ function startGeneration(){
   }, 40);
 }
 
-/* ── init ── */
 show(1);
+
 </script>
 
 </body>
