@@ -127,7 +127,7 @@ h1{
   object-fit:cover;
   border-radius:18px;
   box-shadow:0 20px 60px rgba(0,0,0,0.4);
-  transition:opacity 0.8s ease;
+  transition:opacity 0.6s ease;
 }
 
 .nav{
@@ -176,11 +176,33 @@ audio{display:none;}
 
 <script>
 const data = JSON.parse(localStorage.getItem('relinkData') || '{}');
+
 const groupName = data.groupName || "your group";
 const year = new Date().getFullYear() - 1;
 
+let i = 0;
+let photoIndex = 0;
+let songIndex = 0;
+
+let audioUnlocked = false;
 const audio = document.getElementById('audio');
 audio.volume = 0.8;
+
+function unlockAudio(){
+  if(audioUnlocked) return;
+  audioUnlocked = true;
+
+  const t = data.songs?.[0]?.preview;
+  if(t){
+    const test = new Audio();
+    test.src = t;
+    test.volume = 0;
+    test.play().catch(()=>{});
+  }
+}
+
+document.addEventListener('click', unlockAudio, { once:true });
+document.addEventListener('touchstart', unlockAudio, { once:true });
 
 const jokes = [
   "This group should not be trusted with free time.",
@@ -208,39 +230,31 @@ baseSlides.forEach((s,i)=>{
   if(i>0 && i<baseSlides.length-1) slides.push({joke:true});
 });
 
-let i=0;
-let photoIndex=0;
-let photoTimer=null;
-let songIndex=0;
-
 function animate(el){
   const a=["zoomIn","slideLeft","fadeSoft"];
   el.classList.add(a[Math.floor(Math.random()*a.length)]);
 }
 
 function startMusic(){
+  if(!audioUnlocked) return;
   if(!data.songs || !data.songs.length) return;
 
   const track = data.songs[songIndex % data.songs.length];
   if(!track || !track.preview) return;
 
   audio.pause();
-  audio.src = track.preview + "?v=" + Date.now();
+  audio.src = track.preview;
   audio.load();
 
-  const playAudio = () => {
-    audio.play().catch(()=>{});
-  };
-
-  playAudio();
-  document.addEventListener('click', playAudio, { once:true });
+  audio.play().catch(()=>{});
 
   songIndex++;
 }
 
+let photoTimer = null;
+
 function startCarousel(){
   stopCarousel();
-
   const photos = slides[i].photos;
   if(!photos || photos.length <= 1) return;
 
@@ -252,7 +266,7 @@ function startCarousel(){
       setTimeout(()=>{
         img.src = photos[photoIndex];
         img.style.opacity = 1;
-      },300);
+      },250);
     }
   }, 2200);
 }
@@ -274,7 +288,7 @@ function render(){
 
   if(s.joke){
     el.classList.add('joke');
-    el.innerText=jokes[Math.floor(Math.random()*jokes.length)];
+    el.innerText = jokes[Math.floor(Math.random()*jokes.length)];
     stopCarousel();
   }
   else if(s.photos){
@@ -300,7 +314,7 @@ function render(){
 
   wrap.appendChild(el);
 
-  startMusic();
+  setTimeout(()=>startMusic(),200);
 }
 
 function next(){
