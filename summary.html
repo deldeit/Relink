@@ -28,7 +28,7 @@ body{
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.5);
+  background:rgba(0,0,0,0.55);
   z-index:-1;
 }
 
@@ -59,7 +59,12 @@ body{
 
 h1{font-size:3rem;margin:0;}
 
-.text{font-family:Arial;margin-top:15px;opacity:0.85;}
+.text{
+  font-family:Arial;
+  margin-top:15px;
+  opacity:0.85;
+  max-width:70%;
+}
 
 .list{
   margin-top:20px;
@@ -133,13 +138,13 @@ audio{display:none;}
 
 const data = JSON.parse(sessionStorage.getItem('relinkData') || '{}');
 const images = JSON.parse(sessionStorage.getItem('relinkImages') || '[]');
-
 data.images = images;
 
 let i = 0;
+let locked = false;
+
 let photoIndex = 0;
 let timer = null;
-let locked = false;
 
 const audio = document.getElementById('audio');
 let songIndex = 0;
@@ -160,42 +165,27 @@ function playMusic(){
 
 audio.addEventListener('ended', playMusic);
 
-/* 🔥 MOSTRA TUTTO QUELLO CHE ESISTE */
-const sections = [
+/* 🔥 TUTTI I DATI SENZA PERDERE NULLA */
+const slides = [
   { title:`${data.groupName || "Your group"} Rewind` },
 
-  data.images?.length && { title:"Images", photos:data.images },
+  { title:"Images", photos:data.images || [] },
 
-  data.memes?.length && { title:"Memes", list:data.memes },
+  { title:"Memes", list:data.memes || [] },
 
-  data.moments?.length && { title:"Moments", list:data.moments },
+  { title:"Moments", list:data.moments || [] },
 
-  data.phrases?.length && { title:"Phrases", list:data.phrases },
+  { title:"Phrases", list:data.phrases || [] },
 
-  data.jokes?.length && { title:"Inside jokes", list:data.jokes },
+  { title:"Inside jokes", list:data.jokes || [] },
 
-  data.songs?.length && {
+  {
     title:"Songs",
-    list:data.songs.map(s => s.title || "Unknown song")
+    list:(data.songs || []).map(s => s.title || "Unknown song")
   },
 
-  { title:"The End", text:"See you next year." }
-].filter(Boolean);
-
-const jokes = [
-  "Peak chaos.",
-  "No control detected.",
-  "Still alive somehow.",
-  "Questionable decisions."
+  { title:"Final", text:"See you next year." }
 ];
-
-let slides = [];
-sections.forEach((s, idx)=>{
-  slides.push(s);
-  if(idx>0 && idx<sections.length-1){
-    slides.push({ joke:true });
-  }
-});
 
 function startCarousel(){
   stopCarousel();
@@ -228,17 +218,12 @@ function render(){
   const el = document.createElement('div');
   el.className = 'slide active';
 
-  if(s.joke){
-    el.innerText = jokes[Math.floor(Math.random()*jokes.length)];
-    stopCarousel();
-  }
-
-  else if(s.photos){
+  if(s.photos){
     photoIndex = 0;
     el.innerHTML = `
       <h1>${s.title}</h1>
       <div class="carousel">
-        <img id="img" src="${s.photos[0]}">
+        <img id="img" src="${s.photos[0] || ''}">
       </div>
     `;
     startCarousel();
@@ -251,9 +236,11 @@ function render(){
       html += `<div class="text">${s.text}</div>`;
     }
 
-    if(s.list?.length){
+    if(s.list){
       html += `<div class="list">
-        ${s.list.map(x=>`<div class="item">${x}</div>`).join('')}
+        ${(s.list.length ? s.list : ["No data"]).map(x=>`
+          <div class="item">${x}</div>
+        `).join('')}
       </div>`;
     }
 
